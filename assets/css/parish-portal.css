@@ -1,0 +1,521 @@
+/* Matthew Parish Portal Styles - High Specificity */
+#matthew-parish-portal.matthew-portal-container {
+    max-width: 1200px;
+    margin: 2em auto;
+    padding: 1em;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+}
+
+/* Initially hide both sections to prevent flash */
+#matthew-parish-portal #auth-forms {
+    display: none !important;
+}
+
+#matthew-parish-portal #household-management {
+    display: none !important;
+}
+
+/* When auth forms are shown */
+#matthew-parish-portal #auth-forms.show {
+    display: flex !important;
+    gap: 2em;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: center;
+}
+
+/* When household management is shown */
+#matthew-parish-portal #household-management.show {
+    display: block !important;
+}
+
+/* When sections are hidden */
+#matthew-parish-portal #auth-forms.hide {
+    display: none !important;
+}
+
+#matthew-parish-portal #household-management.hide {
+    display: none !important;
+}
+
+/* Auth Section - Side by side forms */
+#matthew-parish-portal .auth-section {
+    display: flex !important;
+    gap: 2em;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: center;
+}
+
+#matthew-parish-portal .matthew-portal-column {
+    flex: 1;
+    min-width: 300px;
+    max-width: 500px;
+    background: #fff;
+    padding: 2em;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e5e5e5;
+    box-sizing: border-box;
+}
+
+/* Fallback for broader selectors */
+.auth-section {
+    display: flex !important;
+    gap: 2em;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.matthew-portal-column {
+    flex: 1;
+    min-width: 300px;
+    max-width: 500px;
+}
+
+#matthew-parish-portal .parish-form h2 {
+    margin-top: 0;
+    margin-bottom: 1.5em;
+    color: #23282d;
+    font-size: 1.5em;
+    text-align: center;
+    border-bottom: 2px solid #0073aa;
+    padding-bottom: 0.5em;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    #matthew-parish-portal .auth-section {
+        flex-direction: column !important;
+        gap: 1em;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    #matthew-parish-portal.matthew-portal-container {
+        padding: 0.5em;
+    }
+    
+    #matthew-parish-portal .matthew-portal-column {
+        min-width: unset;
+        max-width: unset;
+        width: 100%;
+        max-width: 500px;
+        padding: 1.5em;
+    }
+    
+    #matthew-parish-portal .parish-form h2 {
+        font-size: 1.3em;
+    }
+    
+    /* Fallback for mobile */
+    .auth-section {
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+    
+    .matthew-portal-column {
+        width: 100% !important;
+        max-width: 500px !important;
+    }
+}
+
+@media (max-width: 480px) {
+    #matthew-parish-portal .matthew-portal-column {
+        padding: 1em;
+        width: 100%;
+        max-width: 400px;
+    }
+    
+    #matthew-parish-portal .parish-form h2 {
+        font-size: 1.2em;
+    }
+    
+    /* Additional centering for very small screens */
+    #matthew-parish-portal.matthew-portal-container {
+        padding: 0.25em;
+    }
+}
+
+.parish-portal {
+    max-width: 800px;
+    margin: 2em auto;
+    padding: 1em;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+}
+
+.household-registration,
+.member-management {
+    background: #fff;
+    padding: 2em;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.form-group {
+    margin-bottom: 1.5em;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5em;
+    font-weight: 500;
+    color: #23282d;
+}
+
+.form-group input[type="text"],
+.form-group input[type="email"],
+.form-group input[type="tel"],
+.form-group input[type="password"],
+.form-group input[type="date"] {
+    width: 100%;
+    padding: 0.75em;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1em;
+    box-sizing: border-box;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: #0073aa;
+    box-shadow: 0 0 0 2px rgba(0, 115, 170, 0.2);
+}
+
+.help-text {
+    display: block;
+    margin-top: 0.25em;
+    font-size: 0.875em;
+    color: #666;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.text-center a {
+    color: #0073aa;
+    text-decoration: none;
+    font-size: 0.9em;
+}
+
+.text-center a:hover {
+    text-decoration: underline;
+}
+
+/* Message styles */
+#login-message,
+#registration-message {
+    margin-top: 1em;
+    padding: 0.75em;
+    border-radius: 4px;
+    font-size: 0.9em;
+    display: none;
+}
+
+#login-message.error,
+#registration-message.error {
+    background: #fff8f8;
+    border: 1px solid #dc3232;
+    color: #dc3232;
+    display: block;
+}
+
+#login-message.success,
+#registration-message.success {
+    background: #f0f8f0;
+    border: 1px solid #46b450;
+    color: #46b450;
+    display: block;
+}
+
+.form-row {
+    display: flex;
+    gap: 1em;
+    margin-bottom: 1.5em;
+}
+
+@media (max-width: 768px) {
+    .form-row {
+        flex-direction: column;
+        gap: 0;
+    }
+}
+
+/* Remove duplicate label and input styles - handled by .form-group styles above */
+
+.button {
+    background: #0073aa;
+    color: white;
+    border: none;
+    padding: 0.8em 1.5em;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background 0.2s;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.button:hover {
+    background: #005177;
+}
+
+.button:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+}
+
+.button.button-primary {
+    background: #0073aa;
+}
+
+.button.button-primary:hover {
+    background: #005177;
+}
+
+button {
+    background: #0073aa;
+    color: white;
+    border: none;
+    padding: 0.8em 1.5em;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background 0.2s;
+}
+
+button:hover,
+.button:hover {
+    background: #005177;
+}
+
+button:disabled,
+.button:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+}
+
+.error-message {
+    color: #dc3232;
+    padding: 1em;
+    margin-bottom: 1em;
+    border: 1px solid #dc3232;
+    border-radius: 4px;
+    background: #fff8f8;
+}
+
+.members-list {
+    margin: 2em 0;
+}
+
+.member-card {
+    background: #f8f9fa;
+    padding: 1em;
+    margin-bottom: 1em;
+    border-radius: 4px;
+    border: 1px solid #eee;
+}
+
+.member-card h3 {
+    margin: 0;
+    color: #23282d;
+}
+
+.sacraments-section {
+    border-top: 1px solid #eee;
+    margin-top: 2em;
+    padding-top: 1em;
+}
+
+.sacrament-group {
+    margin-bottom: 1em;
+    padding: 1em;
+    background: #f8f9fa;
+    border-radius: 4px;
+}
+
+.sacrament-group label {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+}
+
+.form-actions {
+    display: flex;
+    gap: 1em;
+    margin-top: 2em;
+}
+
+.form-actions button[type="button"] {
+    background: #6c757d;
+}
+
+.form-actions button[type="button"]:hover {
+    background: #5a6268;
+}
+
+/* Household Management Styles */
+.household-section {
+    width: 100%;
+    max-width: 1000px;
+    margin: 0 auto;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e5e5e5;
+}
+
+.household-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 2em;
+    border-bottom: 1px solid #e5e5e5;
+    background: #f8f9fa;
+    border-radius: 8px 8px 0 0;
+}
+
+.household-header h2 {
+    margin: 0;
+    color: #23282d;
+}
+
+.household-actions {
+    display: flex;
+    gap: 1em;
+}
+
+.management-tabs {
+    display: flex;
+    border-bottom: 1px solid #e5e5e5;
+}
+
+.tab-button {
+    background: none;
+    border: none;
+    padding: 1em 2em;
+    cursor: pointer;
+    font-size: 1em;
+    color: #666;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+}
+
+.tab-button:hover {
+    color: #0073aa;
+    background: #f8f9fa;
+}
+
+.tab-button.active {
+    color: #0073aa;
+    border-bottom-color: #0073aa;
+    background: #fff;
+}
+
+.tab-content {
+    display: none;
+    padding: 2em;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+.members-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2em;
+}
+
+.members-header h3 {
+    margin: 0;
+    color: #23282d;
+}
+
+.members-list {
+    margin-bottom: 2em;
+}
+
+.member-card {
+    background: #f8f9fa;
+    padding: 1.5em;
+    margin-bottom: 1em;
+    border-radius: 4px;
+    border: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.member-info h4 {
+    margin: 0 0 0.5em 0;
+    color: #23282d;
+}
+
+.member-info p {
+    margin: 0;
+    color: #666;
+    font-size: 0.9em;
+}
+
+.member-actions {
+    display: flex;
+    gap: 0.5em;
+}
+
+.member-actions .button {
+    padding: 0.5em 1em;
+    font-size: 0.9em;
+}
+
+.button-secondary {
+    background: #6c757d;
+    color: white;
+}
+
+.button-secondary:hover {
+    background: #5a6268;
+}
+
+/* Responsive adjustments for household management */
+@media (max-width: 768px) {
+    .household-header {
+        flex-direction: column;
+        gap: 1em;
+        text-align: center;
+    }
+    
+    .management-tabs {
+        flex-direction: column;
+    }
+    
+    .tab-button {
+        text-align: center;
+        border-bottom: 1px solid #e5e5e5;
+        border-right: none;
+    }
+    
+    .tab-button.active {
+        border-bottom-color: #0073aa;
+    }
+    
+    .members-header {
+        flex-direction: column;
+        gap: 1em;
+        text-align: center;
+    }
+    
+    .member-card {
+        flex-direction: column;
+        gap: 1em;
+        text-align: center;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+    }
+}

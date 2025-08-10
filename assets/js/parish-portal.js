@@ -1,0 +1,732 @@
+jQuery(document).ready(function($) {
+    'use strict';
+    
+    // Matthew API configuration cache
+    let matthewApiConfig = null;
+    let currentHouseholdData = null;
+    
+    // Check if user is already logged in on page load
+    checkAuthenticationStatus();
+    
+    function checkAuthenticationStatus() {
+        const token = localStorage.getItem('matthew_household_token');
+        console.log('Checking authentication status, token exists:', !!token);
+        
+        if (token) {
+            // User has a token, show household management first, then try to load data
+            console.log('Token found, showing household management and loading data...');
+            showHouseholdManagement();
+            loadHouseholdData();
+        } else {
+            // No token, show auth forms
+            console.log('No token found, showing auth forms');
+            showAuthForms();
+        }
+    }
+    
+    function showHouseholdManagement() {
+        console.log('showHouseholdManagement called');
+        const authForms = $('#auth-forms');
+        const householdMgmt = $('#household-management');
+        console.log('Found auth-forms:', authForms.length);
+        console.log('Found household-management:', householdMgmt.length);
+        
+        // Use CSS classes for more reliable display control
+        authForms.addClass('hide').removeClass('show');
+        householdMgmt.addClass('show').removeClass('hide');
+        
+        console.log('After class change - auth visible:', authForms.is(':visible'));
+        console.log('After class change - household visible:', householdMgmt.is(':visible'));
+    }
+    
+    function showAuthForms() {
+        console.log('showAuthForms called');
+        const authForms = $('#auth-forms');
+        const householdMgmt = $('#household-management');
+        
+        // Use CSS classes for more reliable display control
+        householdMgmt.addClass('hide').removeClass('show');
+        authForms.addClass('show').removeClass('hide');
+        
+        localStorage.removeItem('matthew_household_token');
+        currentHouseholdData = null;
+        console.log('Household management hidden, auth forms shown');
+    }
+    
+    // Get Matthew API configuration from WordPress
+    async function getMatthewApiConfig() {
+        if (matthewApiConfig) {
+            return matthewApiConfig;
+        }
+        
+        try {
+            const response = await $.ajax({
+                url: matthewPortalSettings.ajaxurl,
+                method: 'POST',
+                data: {
+                    action: 'matthew_get_api_config',
+                    nonce: matthewPortalSettings.nonce
+                }
+            });
+            
+            if (!response.success || !response.data) {
+                throw new Error('Invalid API configuration response');
+            }
+            
+            matthewApiConfig = response.data;
+            return matthewApiConfig;
+        } catch (error) {
+            console.error('Failed to get API configuration:', error);
+            throw new Error('Failed to get Matthew API configuration');
+        }
+    }
+    
+    // Helper function to display errors
+    function displayError($messageElement, error) {
+        var message = 'An error occurred. Please try again.';
+        
+        if (matthewPortalSettings.debug && error.error) {
+            // In debug mode, show detailed error information
+            if (error.error.message) {
+                message = error.error.message;
+                if (error.error.code) {
+                    message += ' (Code: ' + error.error.code + ')';
+                }
+                if (error.error.trace) {
+                    console.error('Error Trace:', error.error.trace);
+                }
+            } else {
+                message = JSON.stringify(error.error, null, 2);
+            }
+        } else if (error.message) {
+            message = error.message;
+        }
+
+        $messageElement
+            .removeClass('success')
+            .addClass('error')
+            .html(message);
+    }
+
+    // Registration Form Handler (prevent duplicate bindings)
+    $('#parish-registration-form').off('submit').on('submit', async function(e) {
+        e.preventDefault();
+        
+        var $form = $(this);
+        var $message = $('#registration-message');
+        var $submitButton = $form.find('button[type="submit"]');
+        
+        // Validate password match
+        var password = $('#password').val();
+        var passwordConfirm = $('#password_confirm').val();
+        
+        if (password !== passwordConfirm) {
+            displayError($message, { message: 'Passwords do not match' });
+            return;
+        }
+        
+        // Disable submit button and show loading state
+        $submitButton.prop('disabled', true).text('Registering...');
+        $message.html('').removeClass('error success');
+        
+        try {
+            // Get Matthew API configuration
+            const apiConfig = await getMatthewApiConfig();
+            
+            // Prepare form data according to API spec
+            var formData = {
+                household_name: $('#household_name').val(),
+                email: $('#primary_email').val(),
+                phone: $('#primary_phone').val(),
+                password: password
+            };
+        
+            // Send directly to Matthew API
+            const response = await $.ajax({
+                url: apiConfig.apiUrl + apiConfig.endpoints.register,
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                data: JSON.stringify(formData)
+            });
+
+            if (response.data && response.data.token) {
+                // Store the household token securely
+                localStorage.setItem('matthew_household_token', response.data.token);
+                
+                // Store household data
+                currentHouseholdData = response.data.household || response.data;
+                
+                // Show household management interface
+                showHouseholdManagement();
+                loadHouseholdData();
+                
+                // Show success message briefly
+                $message
+                    .removeClass('error')
+                    .addClass('success')
+                    .html('Registration successful! Welcome to your household portal.');
+                
+                $form[0].reset();
+            } else {
+                throw new Error('Invalid response from server');
+            }
+        } catch (error) {
+            console.error('Registration error:', error);
+            displayError($message, error.responseJSON || error);
+        } finally {
+            $submitButton.prop('disabled', false).text('Register Household');
+        }
+    });
+
+    // Login Form Handler (prevent duplicate bindings)
+    $('#parish-login-form').off('submit').on('submit', async function(e) {
+        e.preventDefault();
+        
+        var $form = $(this);
+        var $message = $('#login-message');
+        var $submitButton = $form.find('button[type="submit"]');
+        
+        // Disable submit button and show loading state
+        $submitButton.prop('disabled', true).text('Logging in...');
+        $message.html('').removeClass('error success');
+        
+        try {
+            // Get Matthew API configuration
+            const apiConfig = await getMatthewApiConfig();
+            
+            // Collect form data
+            var formData = {
+                email: $('#login_email').val(),
+                password: $('#login_password').val()
+            };
+            
+            // Send directly to Matthew API
+            const response = await $.ajax({
+                url: apiConfig.apiUrl + apiConfig.endpoints.login,
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                data: JSON.stringify(formData)
+            });
+
+            if (response.success) {
+                console.log('Login response:', response);
+                console.log('Response data:', response.data);
+                console.log('Response data type:', typeof response.data);
+                console.log('Response data keys:', response.data ? Object.keys(response.data) : 'no data');
+                console.log('Has token?', response.data && response.data.token);
+                
+                if (response.data && response.data.token) {
+                    // Store the household token securely
+                    localStorage.setItem('matthew_household_token', response.data.token);
+                    console.log('Token stored:', response.data.token);
+                    
+                    // Store household data - the full response data should contain household info
+                    currentHouseholdData = response.data.household || response.data.user || response.data;
+                    console.log('Login successful, household data:', currentHouseholdData);
+                    
+                    // Show household management interface and populate with data
+                    console.log('About to show household management...');
+                    showHouseholdManagement();
+                    
+                    // Populate form immediately if we have household data
+                    if (currentHouseholdData) {
+                        populateHouseholdForm(currentHouseholdData);
+                        loadMembers(currentHouseholdData.members || []);
+                        $('#household-title').text((currentHouseholdData.name || 'Your Household') + ' - Household Management');
+                    }
+                    
+                    // Don't call loadHouseholdData() here since we already have the data from login
+                    console.log('Login complete, household management should be visible');
+                } else {
+                    console.error('No token in login response:', response);
+                    console.error('Expected response.data.token, but got:', response.data);
+                }
+                $message
+                    .removeClass('error')
+                    .addClass('success')
+                    .html(response.message || 'Login successful!');
+                
+                $form[0].reset();
+                
+                // Redirect if a redirect URL is provided
+                if (response.data && response.data.redirect_url) {
+                    window.location.href = response.data.redirect_url;
+                }
+            } else {
+                throw new Error(response.message || 'Login failed');
+            }
+        } catch (error) {
+            console.error('Login error:', error);
+            displayError($message, error.responseJSON || error);
+        } finally {
+            $submitButton.prop('disabled', false).text('Login');
+        }
+    });
+
+    // Forgot Password Link Handler
+    $('#forgot-password-link').on('click', async function(e) {
+        e.preventDefault();
+        
+        var email = $('#login_email').val();
+        if (!email) {
+            displayError($('#login-message'), { message: 'Please enter your email address first' });
+            return;
+        }
+        
+        var $message = $('#login-message');
+        $message.html('Sending reset instructions...').removeClass('error success');
+        
+        try {
+            // Get Matthew API configuration
+            const apiConfig = await getMatthewApiConfig();
+            
+            // Send directly to Matthew API
+            const response = await $.ajax({
+                url: apiConfig.apiUrl + apiConfig.endpoints.resetPassword,
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                data: JSON.stringify({ email: email })
+            });
+
+            if (response.success) {
+                $message
+                    .removeClass('error')
+                    .addClass('success')
+                    .html(response.message || 'Password reset instructions have been sent to your email.');
+            } else {
+                throw new Error(response.message || 'Password reset request failed');
+            }
+        } catch (error) {
+            console.error('Password reset error:', error);
+            displayError($message, error.responseJSON || error);
+        }
+    });
+
+    // Household Management Functions
+    async function loadHouseholdData() {
+        console.log('loadHouseholdData called');
+        try {
+            const apiConfig = await getMatthewApiConfig();
+            const token = localStorage.getItem('matthew_household_token');
+            console.log('API config:', apiConfig);
+            console.log('Token from localStorage:', token);
+            
+            if (!token) {
+                console.log('No token found, showing auth forms');
+                showAuthForms();
+                return;
+            }
+
+            console.log('Making API request to:', apiConfig.apiUrl + apiConfig.endpoints.household);
+            // Get current household data from API
+            const response = await $.ajax({
+                url: apiConfig.apiUrl + apiConfig.endpoints.household,
+                method: 'GET',
+                headers: {
+                    'Authorization': 'Bearer ' + token,
+                    'Accept': 'application/json'
+                }
+            });
+
+            console.log('Household API response:', response);
+            if (response.data || response.household) {
+                currentHouseholdData = response.data || response.household;
+                console.log('Household data loaded successfully');
+                populateHouseholdForm(currentHouseholdData);
+                
+                // Load members - they might be included in household response or need separate call
+                if (currentHouseholdData.members) {
+                    loadMembers(currentHouseholdData.members);
+                } else {
+                    // Load members separately
+                    loadHouseholdMembers();
+                }
+                
+                $('#household-title').text((currentHouseholdData.name || 'Your Household') + ' - Household Management');
+            } else {
+                console.error('No data in household response:', response);
+                // No household data returned, token might be invalid
+                showAuthForms();
+            }
+        } catch (error) {
+            console.error('Failed to load household data:', error);
+            if (error.status === 401 || error.status === 403) {
+                // Token expired or invalid
+                showAuthForms();
+            } else {
+                // Other error, household management is already shown, just log the error
+                console.error('Could not load household data, but keeping user logged in');
+            }
+        }
+    }
+
+    async function loadHouseholdMembers() {
+        try {
+            const apiConfig = await getMatthewApiConfig();
+            const token = localStorage.getItem('matthew_household_token');
+            
+            if (!token) {
+                return;
+            }
+
+            console.log('Loading household members from:', apiConfig.apiUrl + apiConfig.endpoints.members);
+            const response = await $.ajax({
+                url: apiConfig.apiUrl + apiConfig.endpoints.members,
+                method: 'GET',
+                headers: {
+                    'Authorization': 'Bearer ' + token,
+                    'Accept': 'application/json'
+                }
+            });
+
+            console.log('Members API response:', response);
+            if (response.data) {
+                console.log('Loading members from response.data:', response.data);
+                loadMembers(response.data);
+            } else if (response.members) {
+                console.log('Loading members from response.members:', response.members);
+                loadMembers(response.members);
+            } else if (Array.isArray(response)) {
+                console.log('Response is array, loading directly:', response);
+                loadMembers(response);
+            } else {
+                console.log('No members found in response, loading empty array');
+                loadMembers([]);
+            }
+        } catch (error) {
+            console.error('Failed to load household members:', error);
+            console.error('Error details:', error.responseJSON || error);
+            loadMembers([]);
+        }
+    }
+
+    function populateHouseholdForm(household) {
+        // Handle different possible data structures
+        const householdData = household.household || household;
+        
+        $('#household_name_edit').val(householdData.name || householdData.household_name || '');
+        $('#household_address').val(householdData.address || '');
+        $('#household_city').val(householdData.city || '');
+        $('#household_province').val(householdData.province || '');
+        $('#household_postal_code').val(householdData.postal_code || '');
+        $('#household_phone_edit').val(householdData.phone || householdData.primary_phone || '');
+        $('#household_email_edit').val(householdData.email || householdData.primary_email || '');
+    }
+
+    function loadMembers(members) {
+        console.log('loadMembers called with:', members);
+        console.log('Members type:', typeof members);
+        console.log('Members length:', members ? members.length : 'null/undefined');
+        
+        const $membersList = $('#members-list');
+        $membersList.empty();
+
+        if (!members || members.length === 0) {
+            console.log('No members to display, showing empty message');
+            $membersList.html('<p>No members added yet. Click "Add Member" to get started.</p>');
+            return;
+        }
+
+        console.log('Rendering', members.length, 'members');
+        members.forEach((member, index) => {
+            console.log('Rendering member', index, ':', member);
+            const sacraments = [];
+            if (member.baptised) sacraments.push('Baptised');
+            if (member.first_communion) sacraments.push('First Communion');
+            if (member.confirmed) sacraments.push('Confirmed');
+
+            const memberCard = $(`
+                <div class="member-card" data-member-id="${member.id}">
+                    <div class="member-info">
+                        <h4>${member.first_name} ${member.last_name}</h4>
+                        <p>
+                            ${member.email ? 'Email: ' + member.email : ''}
+                            ${member.phone ? (member.email ? ' | ' : '') + 'Phone: ' + member.phone : ''}
+                        </p>
+                        ${sacraments.length > 0 ? '<p>Sacraments: ' + sacraments.join(', ') + '</p>' : ''}
+                    </div>
+                    <div class="member-actions">
+                        <button type="button" class="button edit-member-btn" data-member-id="${member.id}">Edit</button>
+                        <button type="button" class="button button-secondary delete-member-btn" data-member-id="${member.id}">Delete</button>
+                    </div>
+                </div>
+            `);
+            
+            $membersList.append(memberCard);
+        });
+        console.log('Finished rendering members, final HTML:', $membersList.html());
+    }
+
+    // Tab switching
+    $('.tab-button').on('click', function() {
+        const targetTab = $(this).data('tab');
+        
+        $('.tab-button').removeClass('active');
+        $(this).addClass('active');
+        
+        $('.tab-content').removeClass('active');
+        $('#' + targetTab + '-tab').addClass('active');
+    });
+
+    // Logout functionality
+    $('#logout-btn').on('click', async function() {
+        try {
+            const apiConfig = await getMatthewApiConfig();
+            const token = localStorage.getItem('matthew_household_token');
+            
+            if (token) {
+                await $.ajax({
+                    url: apiConfig.apiUrl + apiConfig.endpoints.logout,
+                    method: 'POST',
+                    headers: {
+                        'Authorization': 'Bearer ' + token,
+                        'Accept': 'application/json'
+                    }
+                });
+            }
+        } catch (error) {
+            console.error('Logout error:', error);
+        } finally {
+            showAuthForms();
+        }
+    });
+
+    // Household info form submission
+    $('#household-info-form').on('submit', async function(e) {
+        e.preventDefault();
+        
+        const $form = $(this);
+        const $message = $('#household-info-message');
+        const $submitButton = $form.find('button[type="submit"]');
+        
+        $submitButton.prop('disabled', true).text('Updating...');
+        $message.html('').removeClass('error success');
+        
+        try {
+            const apiConfig = await getMatthewApiConfig();
+            const token = localStorage.getItem('matthew_household_token');
+            
+            const formData = {
+                name: $('#household_name_edit').val(),
+                address: $('#household_address').val(),
+                city: $('#household_city').val(),
+                province: $('#household_province').val(),
+                postal_code: $('#household_postal_code').val(),
+                phone: $('#household_phone_edit').val(),
+                email: $('#household_email_edit').val()
+            };
+            
+            const response = await $.ajax({
+                url: apiConfig.apiUrl + apiConfig.endpoints.household,
+                method: 'PUT',
+                headers: {
+                    'Authorization': 'Bearer ' + token,
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                data: JSON.stringify(formData)
+            });
+
+            $message
+                .removeClass('error')
+                .addClass('success')
+                .html('Household information updated successfully!');
+                
+            // Update the title
+            $('#household-title').text(formData.name + ' - Household Management');
+            
+        } catch (error) {
+            console.error('Household update error:', error);
+            displayError($message, error.responseJSON || error);
+        } finally {
+            $submitButton.prop('disabled', false).text('Update Household');
+        }
+    });
+
+    // Add member button
+    $('#add-member-btn').on('click', function() {
+        showMemberForm();
+    });
+
+    // Cancel member form
+    $('#cancel-member-btn').on('click', function() {
+        hideMemberForm();
+    });
+
+    // Edit member buttons (delegated event handler)
+    $(document).on('click', '.edit-member-btn', function() {
+        const memberId = $(this).data('member-id');
+        editMember(memberId);
+    });
+
+    // Delete member buttons (delegated event handler)
+    $(document).on('click', '.delete-member-btn', function() {
+        const memberId = $(this).data('member-id');
+        if (confirm('Are you sure you want to delete this member?')) {
+            deleteMember(memberId);
+        }
+    });
+
+    // Baptism checkbox handler
+    $('#member_baptised').on('change', function() {
+        if ($(this).is(':checked')) {
+            $('#baptism-details').show();
+        } else {
+            $('#baptism-details').hide();
+            $('#baptism_date').val('');
+            $('#baptism_parish').val('');
+        }
+    });
+
+    function showMemberForm(member = null) {
+        $('#member-form-container').show();
+        
+        if (member) {
+            $('#member-form-title').text('Edit Member');
+            $('#member_id').val(member.id);
+            $('#member_first_name').val(member.first_name);
+            $('#member_last_name').val(member.last_name);
+            $('#member_email').val(member.email || '');
+            $('#member_phone').val(member.phone || '');
+            $('#member_baptised').prop('checked', member.baptised || false);
+            $('#baptism_date').val(member.baptism_date || '');
+            $('#baptism_parish').val(member.baptism_parish || '');
+            $('#member_first_communion').prop('checked', member.first_communion || false);
+            $('#member_confirmed').prop('checked', member.confirmed || false);
+            
+            if (member.baptised) {
+                $('#baptism-details').show();
+            }
+        } else {
+            $('#member-form-title').text('Add New Member');
+            $('#member-form')[0].reset();
+            $('#member_id').val('');
+            $('#baptism-details').hide();
+        }
+        
+        // Scroll to form
+        $('#member-form-container')[0].scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function hideMemberForm() {
+        $('#member-form-container').hide();
+        $('#member-form')[0].reset();
+        $('#member-form-message').html('').removeClass('error success');
+    }
+
+    async function editMember(memberId) {
+        if (!currentHouseholdData || !currentHouseholdData.members) {
+            return;
+        }
+        
+        const member = currentHouseholdData.members.find(m => m.id == memberId);
+        if (member) {
+            showMemberForm(member);
+        }
+    }
+
+    async function deleteMember(memberId) {
+        try {
+            const apiConfig = await getMatthewApiConfig();
+            const token = localStorage.getItem('matthew_household_token');
+            
+            await $.ajax({
+                url: apiConfig.apiUrl + apiConfig.endpoints.member + '/' + memberId,
+                method: 'DELETE',
+                headers: {
+                    'Authorization': 'Bearer ' + token,
+                    'Accept': 'application/json'
+                }
+            });
+            
+            // Reload members list
+            loadHouseholdMembers();
+            
+        } catch (error) {
+            console.error('Delete member error:', error);
+            alert('Failed to delete member. Please try again.');
+        }
+    }
+
+    // Member form submission
+    $('#member-form').on('submit', async function(e) {
+        e.preventDefault();
+        
+        const $form = $(this);
+        const $message = $('#member-form-message');
+        const $submitButton = $form.find('button[type="submit"]');
+        const memberId = $('#member_id').val();
+        const isEdit = memberId !== '';
+        
+        $submitButton.prop('disabled', true).text(isEdit ? 'Updating...' : 'Adding...');
+        $message.html('').removeClass('error success');
+        
+        try {
+            const apiConfig = await getMatthewApiConfig();
+            const token = localStorage.getItem('matthew_household_token');
+            
+            const formData = {
+                first_name: $('#member_first_name').val(),
+                last_name: $('#member_last_name').val(),
+                email: $('#member_email').val(),
+                phone: $('#member_phone').val(),
+                baptised: $('#member_baptised').is(':checked'),
+                baptism_date: $('#baptism_date').val(),
+                baptism_parish: $('#baptism_parish').val(),
+                first_communion: $('#member_first_communion').is(':checked'),
+                confirmed: $('#member_confirmed').is(':checked')
+            };
+            
+            let url, method;
+            if (isEdit) {
+                url = apiConfig.apiUrl + apiConfig.endpoints.member + '/' + memberId;
+                method = 'PUT';
+            } else {
+                url = apiConfig.apiUrl + apiConfig.endpoints.members;
+                method = 'POST';
+            }
+            
+            const response = await $.ajax({
+                url: url,
+                method: method,
+                headers: {
+                    'Authorization': 'Bearer ' + token,
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                data: JSON.stringify(formData)
+            });
+
+            console.log('Member save response:', response);
+            $message
+                .removeClass('error')
+                .addClass('success')
+                .html(isEdit ? 'Member updated successfully!' : 'Member added successfully!');
+            
+            // Reload members list
+            console.log('About to reload household members...');
+            await loadHouseholdMembers();
+            console.log('Finished reloading household members');
+            
+            // Hide form after short delay
+            setTimeout(() => {
+                hideMemberForm();
+            }, 1500);
+            
+        } catch (error) {
+            console.error('Member save error:', error);
+            displayError($message, error.responseJSON || error);
+        } finally {
+            $submitButton.prop('disabled', false).text(isEdit ? 'Update Member' : 'Add Member');
+        }
+    });
+});
