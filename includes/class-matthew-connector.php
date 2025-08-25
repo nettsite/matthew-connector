@@ -99,25 +99,8 @@ class Matthew_Connector {
 
 
     public function enqueue_scripts() {
-        // Get plugin URL and version
-        $plugin_url = defined('MATTHEW_CONNECTOR_PLUGIN_URL') ? MATTHEW_CONNECTOR_PLUGIN_URL : plugin_dir_url(dirname(__FILE__));
-        $version = defined('MATTHEW_CONNECTOR_VERSION') ? MATTHEW_CONNECTOR_VERSION : '1.0.0';
-
-        // Enqueue frontend scripts and styles
-        wp_enqueue_script(
-            'matthew-portal',
-            $plugin_url . 'assets/js/parish-portal.js',
-            array('jquery'),
-            $version,
-            true
-        );
-
-        // Pass settings to JavaScript
-        wp_localize_script('matthew-portal', 'matthewPortalSettings', array(
-            'ajaxurl' => admin_url('admin-ajax.php'),
-            'nonce' => wp_create_nonce('matthew_portal_nonce'),
-            'debug' => defined('WP_DEBUG') && WP_DEBUG
-        ));
+        // Scripts are now handled by the Parish Portal class to avoid duplication
+        // This method is kept for backwards compatibility but does nothing
     }
 
     public function add_admin_menu() {

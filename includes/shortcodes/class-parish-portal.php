@@ -79,22 +79,189 @@ class ParishPortal {
         
         ob_start();
         ?>
+        <style>
+        /* Auth Tab styles */
+        .auth-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .auth-header h2 {
+            margin: 0 0 15px 0;
+            color: #333;
+        }
+        
+        .auth-instructions {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.5;
+            margin: 0;
+        }
+        
+        .auth-tabs {
+            display: flex;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        
+        .auth-tab-button {
+            flex: 1;
+            padding: 12px 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            color: #666;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+        
+        .auth-tab-button:hover {
+            color: #333;
+            background-color: #f8f9fa;
+        }
+        
+        .auth-tab-button.active {
+            color: #0073aa;
+            border-bottom-color: #0073aa;
+            background-color: #f8f9fa;
+        }
+        
+        .auth-tab-content {
+            display: none;
+        }
+        
+        .auth-tab-content.active {
+            display: block;
+        }
+        
+        .full-width {
+            width: 100%;
+        }
+        
+        /* Modal styles */
+        .matthew-modal {
+            position: fixed;
+            z-index: 10000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .matthew-modal-content {
+            background-color: #fff;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        .matthew-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 24px 0;
+            border-bottom: 1px solid #e0e0e0;
+            margin-bottom: 20px;
+        }
+        
+        .matthew-modal-header h4 {
+            margin: 0;
+            color: #333;
+            font-size: 1.25em;
+        }
+        
+        .matthew-modal-close {
+            font-size: 28px;
+            font-weight: bold;
+            color: #aaa;
+            cursor: pointer;
+            line-height: 1;
+            padding: 0;
+            background: none;
+            border: none;
+        }
+        
+        .matthew-modal-close:hover {
+            color: #000;
+        }
+        
+        .matthew-modal-body {
+            padding: 0 24px 24px;
+        }
+        
+        /* Password toggle styles */
+        .password-input-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        
+        .password-input-container input {
+            padding-right: 40px;
+        }
+        
+        .password-toggle {
+            position: absolute;
+            right: 12px;
+            cursor: pointer;
+            font-size: 16px;
+            color: #666;
+            user-select: none;
+            z-index: 10;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 4px;
+            border-radius: 3px;
+        }
+        
+        .password-toggle:hover {
+            color: #333;
+        }
+        
+        .password-toggle.hidden {
+            opacity: 0.5;
+        }
+        </style>
+        
         <div id="matthew-parish-portal" class="matthew-portal-container">
             <!-- Login/Registration Forms (shown when not authenticated) -->
             <div id="auth-forms" class="auth-section">
-                <div class="matthew-portal-column">
+                <div class="auth-header">
+                    <p class="auth-instructions">
+                        <strong>New to our parish?</strong> Register your household to get started.<br>
+                        <strong>Already registered?</strong> Login with your email and password.
+                    </p>
+                </div>
+                
+                <div class="auth-tabs">
+                    <button type="button" class="auth-tab-button active" data-tab="login">Login</button>
+                    <button type="button" class="auth-tab-button" data-tab="register">Register</button>
+                </div>
+                
+                <!-- Login Tab -->
+                <div id="login-tab" class="auth-tab-content active">
                     <form id="parish-login-form" class="parish-form">
-                        <h2>Login to Your Household</h2>
                         <div class="form-group">
                             <label for="login_email">Email Address</label>
-                            <input type="email" id="login_email" name="login_email" required>
+                            <input type="email" id="login_email" name="login_email" required autocomplete="username">
                         </div>
                         <div class="form-group">
                             <label for="login_password">Password</label>
-                            <input type="password" id="login_password" name="login_password" required autocomplete="current-password">
+                            <div class="password-input-container">
+                                <input type="password" id="login_password" name="login_password" required autocomplete="current-password">
+                                <span class="password-toggle" data-target="login_password">👁️</span>
+                            </div>
                         </div>
                         <div class="form-group">
-                            <button type="submit" class="button button-primary">Login</button>
+                            <button type="submit" class="button button-primary full-width">Login</button>
                         </div>
                         <div class="form-group text-center">
                             <a href="#" id="forgot-password-link">Forgot Password?</a>
@@ -103,9 +270,9 @@ class ParishPortal {
                     </form>
                 </div>
                 
-                <div class="matthew-portal-column">
+                <!-- Registration Tab -->
+                <div id="register-tab" class="auth-tab-content">
                     <form id="parish-registration-form" class="parish-form">
-                        <h2>Register New Household</h2>
                         <div class="form-group">
                             <label for="household_name">Household Name</label>
                             <input type="text" id="household_name" name="household_name" required 
@@ -113,25 +280,30 @@ class ParishPortal {
                         </div>
                         <div class="form-group">
                             <label for="primary_email">Email Address</label>
-                            <input type="email" id="primary_email" name="primary_email" required>
+                            <input type="email" id="primary_email" name="primary_email" required autocomplete="username">
                         </div>
                         <div class="form-group">
                             <label for="primary_phone">Phone Number</label>
-                            <input type="tel" id="primary_phone" name="primary_phone" required
-                                   placeholder="(123) 456-7890">
+                            <input type="tel" id="primary_phone" name="primary_phone" required>
                         </div>
                         <div class="form-group">
                             <label for="password">Password</label>
-                            <input type="password" id="password" name="password" required
-                                   minlength="8" autocomplete="new-password">
+                            <div class="password-input-container">
+                                <input type="password" id="password" name="password" required
+                                       minlength="8" autocomplete="new-password">
+                                <span class="password-toggle" data-target="password">👁️</span>
+                            </div>
                             <small class="help-text">At least 8 characters</small>
                         </div>
                         <div class="form-group">
                             <label for="password_confirm">Confirm Password</label>
-                            <input type="password" id="password_confirm" name="password_confirm" required autocomplete="new-password">
+                            <div class="password-input-container">
+                                <input type="password" id="password_confirm" name="password_confirm" required autocomplete="new-password">
+                                <span class="password-toggle" data-target="password_confirm">👁️</span>
+                            </div>
                         </div>
                         <div class="form-group">
-                            <button type="submit" class="button button-primary">Register Household</button>
+                            <button type="submit" class="button button-primary full-width">Register Household</button>
                         </div>
                         <div id="registration-message"></div>
                     </form>
@@ -141,7 +313,7 @@ class ParishPortal {
             <!-- Household Management (shown when authenticated) -->
             <div id="household-management" class="household-section" style="display: none;">
                 <div class="household-header">
-                    <h2 id="household-title">Household Management</h2>
+                    <h2 id="household-title"></h2>
                     <div class="household-actions">
                         <button type="button" id="logout-btn" class="button button-secondary">Logout</button>
                     </div>
@@ -210,11 +382,16 @@ class ParishPortal {
                         <!-- Members will be loaded dynamically -->
                     </div>
 
-                    <!-- Add/Edit Member Form (initially hidden) -->
-                    <div id="member-form-container" style="display: none;">
-                        <form id="member-form" class="parish-form">
-                            <h4 id="member-form-title">Add New Member</h4>
-                            <input type="hidden" id="member_id" name="member_id">
+                    <!-- Add/Edit Member Modal -->
+                    <div id="member-form-modal" class="matthew-modal" style="display: none;">
+                        <div class="matthew-modal-content">
+                            <div class="matthew-modal-header">
+                                <h4 id="member-form-title">Add New Member</h4>
+                                <span class="matthew-modal-close">&times;</span>
+                            </div>
+                            <div class="matthew-modal-body">
+                                <form id="member-form" class="parish-form">
+                                    <input type="hidden" id="member_id" name="member_id">
                             
                             <div class="form-row">
                                 <div class="form-group">
@@ -226,7 +403,7 @@ class ParishPortal {
                                     <input type="text" id="member_last_name" name="last_name" required>
                                 </div>
                             </div>
-                            
+
                             <div class="form-row">
                                 <div class="form-group">
                                     <label for="member_email">Email</label>
@@ -238,6 +415,17 @@ class ParishPortal {
                                 </div>
                             </div>
 
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="member_occupation">Occupation</label>
+                                    <input type="text" id="member_occupation" name="occupation">
+                                </div>
+                                <div class="form-group">
+                                    <label for="member_skills">Skills</label>
+                                    <input type="text" id="member_skills" name="skills">
+                                </div>
+                            </div>
+
                             <h5>Sacramental Information</h5>
                             <div class="sacraments-section">
                                 <div class="form-group">
@@ -246,7 +434,6 @@ class ParishPortal {
                                         Baptised
                                     </label>
                                 </div>
-                                
                                 <div id="baptism-details" style="display: none;">
                                     <div class="form-row">
                                         <div class="form-group">
@@ -266,12 +453,36 @@ class ParishPortal {
                                         First Communion
                                     </label>
                                 </div>
+                                <div id="first-communion-details" style="display: none;">
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label for="first_communion_date">First Communion Date</label>
+                                            <input type="date" id="first_communion_date" name="first_communion_date">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="first_communion_parish">First Communion Parish</label>
+                                            <input type="text" id="first_communion_parish" name="first_communion_parish">
+                                        </div>
+                                    </div>
+                                </div>
 
                                 <div class="form-group">
                                     <label>
                                         <input type="checkbox" id="member_confirmed" name="confirmed">
                                         Confirmed
                                     </label>
+                                </div>
+                                <div id="confirmation-details" style="display: none;">
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label for="confirmation_date">Confirmation Date</label>
+                                            <input type="date" id="confirmation_date" name="confirmation_date">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="confirmation_parish">Confirmation Parish</label>
+                                            <input type="text" id="confirmation_parish" name="confirmation_parish">
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
@@ -280,7 +491,9 @@ class ParishPortal {
                                 <button type="button" id="cancel-member-btn" class="button button-secondary">Cancel</button>
                             </div>
                             <div id="member-form-message"></div>
-                        </form>
+                                </form>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -303,16 +516,57 @@ class ParishPortal {
         // Ensure jQuery is loaded
         wp_enqueue_script('jquery');
         
+        // Enqueue modular JavaScript files in dependency order
         wp_enqueue_script(
-            'matthew-parish-portal',
-            $plugin_url . 'assets/js/parish-portal.js',
+            'parish-portal-utils',
+            $plugin_url . 'assets/js/parish-portal-utils.js',
             ['jquery'],
             $version,
             true
         );
+        
+        wp_enqueue_script(
+            'parish-portal-api',
+            $plugin_url . 'assets/js/parish-portal-api.js',
+            ['jquery', 'parish-portal-utils'],
+            $version,
+            true
+        );
+        
+        wp_enqueue_script(
+            'parish-portal-auth',
+            $plugin_url . 'assets/js/parish-portal-auth.js',
+            ['jquery', 'parish-portal-utils', 'parish-portal-api'],
+            $version,
+            true
+        );
+        
+        wp_enqueue_script(
+            'parish-portal-household',
+            $plugin_url . 'assets/js/parish-portal-household.js',
+            ['jquery', 'parish-portal-utils', 'parish-portal-api'],
+            $version,
+            true
+        );
+        
+        wp_enqueue_script(
+            'parish-portal-members',
+            $plugin_url . 'assets/js/parish-portal-members.js',
+            ['jquery', 'parish-portal-utils', 'parish-portal-api'],
+            $version,
+            true
+        );
+        
+        wp_enqueue_script(
+            'parish-portal-main',
+            $plugin_url . 'assets/js/parish-portal-main.js',
+            ['jquery', 'parish-portal-utils', 'parish-portal-api', 'parish-portal-auth', 'parish-portal-household', 'parish-portal-members'],
+            $version,
+            true
+        );
 
-        // Don't set JSON content type globally - we'll set it in our AJAX handlers
-        wp_localize_script('matthew-parish-portal', 'matthewPortalSettings', [
+        // Localize script for the main file
+        wp_localize_script('parish-portal-main', 'parishPortalAjax', [
             'ajaxurl' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('matthew_portal'),
             'debug' => defined('WP_DEBUG') && WP_DEBUG

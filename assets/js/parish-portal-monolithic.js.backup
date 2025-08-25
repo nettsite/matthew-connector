@@ -237,20 +237,23 @@ jQuery(document).ready(function($) {
                     // Populate form immediately if we have household data
                     if (currentHouseholdData) {
                         populateHouseholdForm(currentHouseholdData);
-                        loadMembers(currentHouseholdData.members || []);
-                        $('#household-title').text((currentHouseholdData.name || 'Your Household') + ' - Household Management');
+                        $('#household-title').text((currentHouseholdData.name || 'Your Household'));
+                        
+                        // Load members - they need to be fetched separately
+                        if (currentHouseholdData.members && currentHouseholdData.members.length > 0) {
+                            loadMembers(currentHouseholdData.members);
+                        } else {
+                            // Members not included in login response, fetch them separately
+                            loadHouseholdMembers();
+                        }
                     }
                     
-                    // Don't call loadHouseholdData() here since we already have the data from login
+                    // Don't call loadHouseholdData() here since we already have the household data from login
                     console.log('Login complete, household management should be visible');
                 } else {
                     console.error('No token in login response:', response);
                     console.error('Expected response.data.token, but got:', response.data);
                 }
-                $message
-                    .removeClass('error')
-                    .addClass('success')
-                    .html(response.message || 'Login successful!');
                 
                 $form[0].reset();
                 
@@ -351,7 +354,7 @@ jQuery(document).ready(function($) {
                     loadHouseholdMembers();
                 }
                 
-                $('#household-title').text((currentHouseholdData.name || 'Your Household') + ' - Household Management');
+                $('#household-title').text((currentHouseholdData.name || 'Your Household'));
             } else {
                 console.error('No data in household response:', response);
                 // No household data returned, token might be invalid
@@ -389,19 +392,32 @@ jQuery(document).ready(function($) {
             });
 
             console.log('Members API response:', response);
+            let membersData = [];
             if (response.data) {
                 console.log('Loading members from response.data:', response.data);
-                loadMembers(response.data);
+                membersData = response.data;
             } else if (response.members) {
                 console.log('Loading members from response.members:', response.members);
-                loadMembers(response.members);
+                membersData = response.members;
             } else if (Array.isArray(response)) {
                 console.log('Response is array, loading directly:', response);
-                loadMembers(response);
+                membersData = response;
             } else {
                 console.log('No members found in response, loading empty array');
-                loadMembers([]);
+                membersData = [];
             }
+            
+            // Update the current household data with fresh member data
+            if (currentHouseholdData) {
+                console.log('Before update - currentHouseholdData.members:', currentHouseholdData.members);
+                currentHouseholdData.members = membersData;
+                console.log('After update - currentHouseholdData.members:', currentHouseholdData.members);
+                console.log('Updated currentHouseholdData.members with fresh data');
+            } else {
+                console.log('No currentHouseholdData to update');
+            }
+            
+            loadMembers(membersData);
         } catch (error) {
             console.error('Failed to load household members:', error);
             console.error('Error details:', error.responseJSON || error);
@@ -466,7 +482,7 @@ jQuery(document).ready(function($) {
         console.log('Finished rendering members, final HTML:', $membersList.html());
     }
 
-    // Tab switching
+    // Tab switching for management tabs
     $('.tab-button').on('click', function() {
         const targetTab = $(this).data('tab');
         
@@ -474,6 +490,17 @@ jQuery(document).ready(function($) {
         $(this).addClass('active');
         
         $('.tab-content').removeClass('active');
+        $('#' + targetTab + '-tab').addClass('active');
+    });
+
+    // Tab switching for auth tabs
+    $('.auth-tab-button').on('click', function() {
+        const targetTab = $(this).data('tab');
+        
+        $('.auth-tab-button').removeClass('active');
+        $(this).addClass('active');
+        
+        $('.auth-tab-content').removeClass('active');
         $('#' + targetTab + '-tab').addClass('active');
     });
 
@@ -501,7 +528,7 @@ jQuery(document).ready(function($) {
     });
 
     // Household info form submission
-    $('#household-info-form').on('submit', async function(e) {
+    $('#household-info-form').off('submit').on('submit', async function(e) {
         e.preventDefault();
         
         const $form = $(this);
@@ -542,7 +569,7 @@ jQuery(document).ready(function($) {
                 .html('Household information updated successfully!');
                 
             // Update the title
-            $('#household-title').text(formData.name + ' - Household Management');
+            $('#household-title').text(formData.name);
             
         } catch (error) {
             console.error('Household update error:', error);
@@ -564,7 +591,9 @@ jQuery(document).ready(function($) {
 
     // Edit member buttons (delegated event handler)
     $(document).on('click', '.edit-member-btn', function() {
+        console.log('Edit button clicked!');
         const memberId = $(this).data('member-id');
+        console.log('Member ID:', memberId);
         editMember(memberId);
     });
 
@@ -587,8 +616,67 @@ jQuery(document).ready(function($) {
         }
     });
 
+    $('#member_first_communion').on('change', function() {
+        if ($(this).is(':checked')) {
+            $('#first-communion-details').show();
+        } else {
+            $('#first-communion-details').hide();
+            $('#first_communion_date').val('');
+            $('#first_communion_parish').val('');
+        }
+    });
+
+    $('#member_confirmed').on('change', function() {
+        if ($(this).is(':checked')) {
+            $('#confirmation-details').show();
+        } else {
+            $('#confirmation-details').hide();
+            $('#confirmation_date').val('');
+            $('#confirmation_parish').val('');
+        }
+    });
+
+    // Modal close handlers
+    $(document).on('click', '.matthew-modal-close', function() {
+        hideMemberForm();
+    });
+
+    // Close modal when clicking outside of it
+    $(document).on('click', '.matthew-modal', function(e) {
+        if (e.target === this) {
+            hideMemberForm();
+        }
+    });
+
+    // Close modal with Escape key
+    $(document).on('keydown', function(e) {
+        if (e.key === 'Escape' && $('#member-form-modal').is(':visible')) {
+            hideMemberForm();
+        }
+    });
+
+    function hideMemberForm() {
+        $('#member-form-modal').hide();
+        $('#member-form')[0].reset();
+        $('#member_id').val('');
+        $('#member_occupation').val('');
+        $('#member_skills').val('');
+        $('#baptism-details').hide();
+        $('#first-communion-details').hide();
+        $('#confirmation-details').hide();
+        $('#member-form-message').html('').removeClass('error success');
+    }
+
     function showMemberForm(member = null) {
-        $('#member-form-container').show();
+        console.log('showMemberForm called with:', member);
+        
+        const $modal = $('#member-form-modal');
+        console.log('Member form modal found:', $modal.length);
+        
+        // Show modal
+        $modal.show();
+        
+        console.log('Modal shown, visible:', $modal.is(':visible'));
         
         if (member) {
             $('#member-form-title').text('Edit Member');
@@ -597,40 +685,78 @@ jQuery(document).ready(function($) {
             $('#member_last_name').val(member.last_name);
             $('#member_email').val(member.email || '');
             $('#member_phone').val(member.phone || '');
+            $('#member_occupation').val(member.occupation || '');
+            $('#member_skills').val(member.skills || '');
             $('#member_baptised').prop('checked', member.baptised || false);
-            $('#baptism_date').val(member.baptism_date || '');
-            $('#baptism_parish').val(member.baptism_parish || '');
-            $('#member_first_communion').prop('checked', member.first_communion || false);
-            $('#member_confirmed').prop('checked', member.confirmed || false);
             
+            // Format dates for HTML date inputs (yyyy-MM-dd)
+            const formatDate = (dateString) => {
+                if (!dateString) return '';
+                const date = new Date(dateString);
+                return date.toISOString().split('T')[0];
+            };
+            
+            $('#baptism_date').val(formatDate(member.baptism_date));
+            $('#baptism_parish').val(member.baptism_parish || '');
             if (member.baptised) {
                 $('#baptism-details').show();
+            } else {
+                $('#baptism-details').hide();
+            }
+            $('#member_first_communion').prop('checked', member.first_communion || false);
+            $('#first_communion_date').val(formatDate(member.first_communion_date));
+            $('#first_communion_parish').val(member.first_communion_parish || '');
+            if (member.first_communion) {
+                $('#first-communion-details').show();
+            } else {
+                $('#first-communion-details').hide();
+            }
+            $('#member_confirmed').prop('checked', member.confirmed || false);
+            $('#confirmation_date').val(formatDate(member.confirmation_date));
+            $('#confirmation_parish').val(member.confirmation_parish || '');
+            if (member.confirmed) {
+                $('#confirmation-details').show();
+            } else {
+                $('#confirmation-details').hide();
             }
         } else {
             $('#member-form-title').text('Add New Member');
             $('#member-form')[0].reset();
             $('#member_id').val('');
+            $('#member_occupation').val('');
+            $('#member_skills').val('');
             $('#baptism-details').hide();
+            $('#first-communion-details').hide();
+            $('#confirmation-details').hide();
         }
-        
-        // Scroll to form
-        $('#member-form-container')[0].scrollIntoView({ behavior: 'smooth' });
-    }
-
-    function hideMemberForm() {
-        $('#member-form-container').hide();
-        $('#member-form')[0].reset();
-        $('#member-form-message').html('').removeClass('error success');
     }
 
     async function editMember(memberId) {
+        console.log('editMember called with ID:', memberId);
+        console.log('currentHouseholdData:', currentHouseholdData);
+        console.log('currentHouseholdData.members:', currentHouseholdData ? currentHouseholdData.members : 'no household data');
+        
         if (!currentHouseholdData || !currentHouseholdData.members) {
+            console.log('No household data or members available');
             return;
         }
         
         const member = currentHouseholdData.members.find(m => m.id == memberId);
+        console.log('Found member for ID', memberId, ':', member);
         if (member) {
             showMemberForm(member);
+        } else {
+            console.log('Member not found in currentHouseholdData.members');
+            // Let's try to fetch fresh data and try again
+            console.log('Attempting to reload household data and try again...');
+            await loadHouseholdData();
+            const freshMember = currentHouseholdData.members.find(m => m.id == memberId);
+            if (freshMember) {
+                console.log('Found member after reload:', freshMember);
+                showMemberForm(freshMember);
+            } else {
+                console.log('Still no member found after reload');
+            }
         }
     }
 
@@ -658,7 +784,7 @@ jQuery(document).ready(function($) {
     }
 
     // Member form submission
-    $('#member-form').on('submit', async function(e) {
+    $('#member-form').off('submit').on('submit', async function(e) {
         e.preventDefault();
         
         const $form = $(this);
@@ -679,11 +805,17 @@ jQuery(document).ready(function($) {
                 last_name: $('#member_last_name').val(),
                 email: $('#member_email').val(),
                 phone: $('#member_phone').val(),
+                occupation: $('#member_occupation').val(),
+                skills: $('#member_skills').val(),
                 baptised: $('#member_baptised').is(':checked'),
                 baptism_date: $('#baptism_date').val(),
                 baptism_parish: $('#baptism_parish').val(),
                 first_communion: $('#member_first_communion').is(':checked'),
-                confirmed: $('#member_confirmed').is(':checked')
+                first_communion_date: $('#first_communion_date').val(),
+                first_communion_parish: $('#first_communion_parish').val(),
+                confirmed: $('#member_confirmed').is(':checked'),
+                confirmation_date: $('#confirmation_date').val(),
+                confirmation_parish: $('#confirmation_parish').val()
             };
             
             let url, method;
