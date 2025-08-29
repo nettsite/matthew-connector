@@ -23,9 +23,9 @@
         try {
             const response = await $.ajax({
                 url: parishPortalAjax.ajaxurl,
-                method: 'GET',
+                method: 'POST',
                 data: {
-                    action: 'get_matthew_api_config',
+                    action: 'matthew_get_api_config',
                     nonce: parishPortalAjax.nonce
                 }
             });

@@ -56,7 +56,7 @@ class Matthew_Connector {
 
         try {
             // Verify nonce
-            if (!check_ajax_referer('matthew_portal_nonce', 'nonce', false)) {
+            if (!check_ajax_referer('matthew_portal', 'nonce', false)) {
                 throw new \Exception('Security check failed', 403);
             }
 

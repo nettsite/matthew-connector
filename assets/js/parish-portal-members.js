@@ -28,8 +28,35 @@
             const response = await window.ParishPortal.API.getMembers();
             console.log('Members response:', response);
 
+            // Handle both WordPress-style response format and direct API response format
+            let membersData = null;
             if (response.success && response.data) {
-                displayMembersList(response.data);
+                // WordPress-style response format
+                membersData = response.data;
+            } else if (response.members) {
+                // Direct API response format with members property
+                membersData = response.members;
+            } else if (Array.isArray(response)) {
+                // Direct array of members
+                membersData = response;
+            }
+
+            if (membersData) {
+                console.log('Loading members from API response:', membersData);
+                
+                // Update the current household data with fresh member data like in backup
+                const householdData = window.ParishPortal.Household.getCurrentHouseholdData();
+                if (householdData) {
+                    console.log('Before update - householdData.members:', householdData.members);
+                    householdData.members = membersData;
+                    console.log('After update - householdData.members:', householdData.members);
+                    console.log('Updated householdData.members with fresh data');
+                    window.ParishPortal.Household.setCurrentHouseholdData(householdData);
+                } else {
+                    console.log('No household data to update');
+                }
+                
+                displayMembersList(membersData);
             } else {
                 throw new Error(response.message || 'Failed to load members data');
             }
@@ -44,64 +71,125 @@
      */
     function displayMembersList(members) {
         console.log('Displaying members list:', members);
+        console.log('Members type:', typeof members);
+        console.log('Members length:', members ? members.length : 'null/undefined');
         
-        const $membersList = $('#member-list');
+        const $membersList = $('#members-list');
         $membersList.empty();
         
         if (!members || members.length === 0) {
-            $membersList.html('<p>No family members added yet. Use the form above to add members.</p>');
+            console.log('No members to display, showing empty message');
+            $membersList.html('<p>No members added yet. Click "Add Member" to get started.</p>');
             return;
         }
         
-        members.forEach(function(member) {
-            const memberHtml = `
-                <div class="member-item" data-member-id="${member.id}">
+        console.log('Rendering', members.length, 'members');
+        members.forEach((member, index) => {
+            console.log('Rendering member', index, ':', member);
+            const sacraments = [];
+            if (member.baptised) sacraments.push('Baptised');
+            if (member.first_communion) sacraments.push('First Communion');
+            if (member.confirmed) sacraments.push('Confirmed');
+
+            const memberCard = $(`
+                <div class="member-card" data-member-id="${member.id}">
                     <div class="member-info">
                         <h4>${member.first_name} ${member.last_name}</h4>
-                        <div class="member-details">
-                            <p><strong>Email:</strong> ${member.email || 'Not provided'}</p>
-                            <p><strong>Phone:</strong> ${member.phone || 'Not provided'}</p>
-                            <p><strong>Occupation:</strong> ${member.occupation || 'Not provided'}</p>
-                            ${member.skills ? `<p><strong>Skills:</strong> ${member.skills}</p>` : ''}
-                            ${member.baptised ? '<p><strong>Baptised:</strong> Yes' +
-                                (member.baptism_date ? ` on ${window.ParishPortal.Utils.formatDate(member.baptism_date)}` : '') +
-                                (member.baptism_parish ? ` at ${member.baptism_parish}` : '') + '</p>' : 
-                                '<p><strong>Baptised:</strong> No</p>'}
-                            ${member.first_communion ? '<p><strong>First Communion:</strong> Yes' +
-                                (member.first_communion_date ? ` on ${window.ParishPortal.Utils.formatDate(member.first_communion_date)}` : '') +
-                                (member.first_communion_parish ? ` at ${member.first_communion_parish}` : '') + '</p>' : 
-                                '<p><strong>First Communion:</strong> No</p>'}
-                            ${member.confirmed ? '<p><strong>Confirmed:</strong> Yes' +
-                                (member.confirmation_date ? ` on ${window.ParishPortal.Utils.formatDate(member.confirmation_date)}` : '') +
-                                (member.confirmation_parish ? ` at ${member.confirmation_parish}` : '') + '</p>' : 
-                                '<p><strong>Confirmed:</strong> No</p>'}
-                        </div>
+                        <p>
+                            ${member.email ? 'Email: ' + member.email : ''}
+                            ${member.phone ? (member.email ? ' | ' : '') + 'Phone: ' + member.phone : ''}
+                        </p>
+                        ${sacraments.length > 0 ? '<p>Sacraments: ' + sacraments.join(', ') + '</p>' : ''}
                     </div>
                     <div class="member-actions">
-                        <button type="button" class="edit-member" data-member-id="${member.id}">Edit</button>
-                        <button type="button" class="delete-member" data-member-id="${member.id}">Delete</button>
+                        <button type="button" class="button edit-member-btn" data-member-id="${member.id}">Edit</button>
+                        <button type="button" class="button button-secondary delete-member-btn" data-member-id="${member.id}">Delete</button>
                     </div>
                 </div>
-            `;
-            $membersList.append(memberHtml);
+            `);
+            
+            $membersList.append(memberCard);
         });
+        console.log('Finished rendering members, final HTML:', $membersList.html());
     }
 
     /**
      * Show member form for adding/editing
      */
-    function showMemberForm() {
-        $('#member-form').removeClass('hidden');
-        $('#add-member-btn').addClass('hidden');
+    function showMemberForm(member = null) {
+        console.log('showMemberForm called with:', member);
+        
+        const $modal = $('#member-form-modal');
+        console.log('Member form modal found:', $modal.length);
+        
+        // Show modal
+        $modal.show();
+        
+        console.log('Modal shown, visible:', $modal.is(':visible'));
+        
+        if (member) {
+            $('#member-form-title').text('Edit Member');
+            $('#member_id').val(member.id);
+            $('#member_first_name').val(member.first_name);
+            $('#member_last_name').val(member.last_name);
+            $('#member_email').val(member.email || '');
+            $('#member_phone').val(member.phone || '');
+            $('#member_occupation').val(member.occupation || '');
+            $('#member_skills').val(member.skills || '');
+            $('#member_baptised').prop('checked', member.baptised || false);
+            
+            // Format dates for HTML date inputs (yyyy-MM-dd)
+            const formatDate = (dateString) => {
+                if (!dateString) return '';
+                const date = new Date(dateString);
+                return date.toISOString().split('T')[0];
+            };
+            
+            $('#baptism_date').val(formatDate(member.baptism_date));
+            $('#baptism_parish').val(member.baptism_parish || '');
+            if (member.baptised) {
+                $('#baptism-details').show();
+            } else {
+                $('#baptism-details').hide();
+            }
+            $('#member_first_communion').prop('checked', member.first_communion || false);
+            $('#first_communion_date').val(formatDate(member.first_communion_date));
+            $('#first_communion_parish').val(member.first_communion_parish || '');
+            if (member.first_communion) {
+                $('#first-communion-details').show();
+            } else {
+                $('#first-communion-details').hide();
+            }
+            $('#member_confirmed').prop('checked', member.confirmed || false);
+            $('#confirmation_date').val(formatDate(member.confirmation_date));
+            $('#confirmation_parish').val(member.confirmation_parish || '');
+            if (member.confirmed) {
+                $('#confirmation-details').show();
+            } else {
+                $('#confirmation-details').hide();
+            }
+            
+            isEditingMember = true;
+            currentEditingMemberId = member.id;
+        } else {
+            $('#member-form-title').text('Add New Member');
+            resetMemberForm();
+        }
     }
 
     /**
      * Hide member form
      */
     function hideMemberForm() {
-        $('#member-form').addClass('hidden');
-        $('#add-member-btn').removeClass('hidden');
-        resetMemberForm();
+        $('#member-form-modal').hide();
+        $('#member-form')[0].reset();
+        $('#member_id').val('');
+        $('#member_occupation').val('');
+        $('#member_skills').val('');
+        $('#baptism-details').hide();
+        $('#first-communion-details').hide();
+        $('#confirmation-details').hide();
+        $('#member-form-message').html('').removeClass('error success');
     }
 
     /**
@@ -114,6 +202,11 @@
         $('#member-form input[type="submit"]').val('Add Member');
         $('#member-form h3').text('Add Family Member');
         window.ParishPortal.Utils.clearMessage($('#members-message'));
+        
+        // Hide all conditional detail sections
+        $('#baptism-details').hide();
+        $('#first-communion-details').hide();
+        $('#confirmation-details').hide();
     }
 
     /**
@@ -133,14 +226,26 @@
         $('#member_baptised').prop('checked', member.baptised || false);
         $('#baptism_date').val(member.baptism_date || '');
         $('#baptism_parish').val(member.baptism_parish || '');
+        // Show baptism details if baptised
+        if (member.baptised) {
+            $('#baptism-details').show();
+        }
         
         $('#member_first_communion').prop('checked', member.first_communion || false);
         $('#first_communion_date').val(member.first_communion_date || '');
         $('#first_communion_parish').val(member.first_communion_parish || '');
+        // Show first communion details if received first communion
+        if (member.first_communion) {
+            $('#first-communion-details').show();
+        }
         
         $('#member_confirmed').prop('checked', member.confirmed || false);
         $('#confirmation_date').val(member.confirmation_date || '');
         $('#confirmation_parish').val(member.confirmation_parish || '');
+        // Show confirmation details if confirmed
+        if (member.confirmed) {
+            $('#confirmation-details').show();
+        }
         
         $('#member-form input[type="submit"]').val('Update Member');
         $('#member-form h3').text('Edit Family Member');
@@ -235,7 +340,7 @@
      * Initialize cancel member form button
      */
     function initCancelMemberForm() {
-        $('#cancel-member-form').off('click').on('click', function() {
+        $('#cancel-member-btn').off('click').on('click', function() {
             hideMemberForm();
         });
     }
@@ -244,28 +349,11 @@
      * Initialize edit member functionality
      */
     function initEditMember() {
-        $(document).off('click', '.edit-member').on('click', '.edit-member', async function() {
+        $(document).off('click', '.edit-member-btn').on('click', '.edit-member-btn', async function() {
+            console.log('Edit button clicked!');
             const memberId = $(this).data('member-id');
-            
-            // For now, we'll extract the member data from the display
-            // In a more robust implementation, you might want to store the member data
-            // or make an API call to get the full member details
-            
-            try {
-                // Get all members and find the one being edited
-                const response = await window.ParishPortal.API.getMembers();
-                if (response.success && response.data) {
-                    const member = response.data.find(m => m.id == memberId);
-                    if (member) {
-                        populateMemberFormForEdit(member);
-                    } else {
-                        window.ParishPortal.Utils.displayError($('#members-message'), 'Member not found');
-                    }
-                }
-            } catch (error) {
-                console.error('Error loading member for edit:', error);
-                window.ParishPortal.Utils.displayError($('#members-message'), 'Failed to load member data');
-            }
+            console.log('Member ID:', memberId);
+            editMember(memberId);
         });
     }
 
@@ -273,9 +361,9 @@
      * Initialize delete member functionality
      */
     function initDeleteMember() {
-        $(document).off('click', '.delete-member').on('click', '.delete-member', async function() {
+        $(document).off('click', '.delete-member-btn').on('click', '.delete-member-btn', async function() {
             const memberId = $(this).data('member-id');
-            const memberName = $(this).closest('.member-item').find('h4').text();
+            const memberName = $(this).closest('.member-card').find('h4').text();
             
             if (!confirm(`Are you sure you want to delete ${memberName}?`)) {
                 return;
@@ -288,17 +376,51 @@
                 
                 console.log('Member delete response:', response);
                 
-                if (response.success) {
-                    window.ParishPortal.Utils.displaySuccess($('#members-message'), 'Family member deleted successfully!');
-                    await loadHouseholdMembers(); // Refresh the members list
-                } else {
-                    throw new Error(response.message || 'Failed to delete family member');
-                }
+                window.ParishPortal.Utils.displaySuccess($('#members-message'), 'Family member deleted successfully!');
+                await loadHouseholdMembers(); // Refresh the members list
             } catch (error) {
                 console.error('Member delete error:', error);
                 window.ParishPortal.Utils.displayError($('#members-message'), error.responseJSON || error);
             }
         });
+    }
+
+    /**
+     * Edit member function like in the backup
+     */
+    async function editMember(memberId) {
+        console.log('editMember called with ID:', memberId);
+        
+        // Get current household data which should have members
+        const householdData = window.ParishPortal.Household.getCurrentHouseholdData();
+        console.log('currentHouseholdData:', householdData);
+        console.log('currentHouseholdData.members:', householdData ? householdData.members : 'no household data');
+        
+        if (!householdData || !householdData.members) {
+            console.log('No household data or members available');
+            return;
+        }
+        
+        const member = householdData.members.find(m => m.id == memberId);
+        console.log('Found member for ID', memberId, ':', member);
+        if (member) {
+            showMemberForm(member);
+        } else {
+            console.log('Member not found in currentHouseholdData.members');
+            // Let's try to fetch fresh data and try again
+            console.log('Attempting to reload household data and try again...');
+            await window.ParishPortal.Household.loadHouseholdData();
+            const freshHouseholdData = window.ParishPortal.Household.getCurrentHouseholdData();
+            if (freshHouseholdData && freshHouseholdData.members) {
+                const freshMember = freshHouseholdData.members.find(m => m.id == memberId);
+                if (freshMember) {
+                    console.log('Found member after reload:', freshMember);
+                    showMemberForm(freshMember);
+                } else {
+                    console.log('Still no member found after reload');
+                }
+            }
+        }
     }
 
     /**
@@ -337,6 +459,71 @@
     }
 
     /**
+     * Initialize modal event handlers
+     */
+    function initModalHandlers() {
+        // Close modal when clicking the X button
+        $(document).on('click', '.matthew-modal-close', function() {
+            hideMemberForm();
+        });
+
+        // Close modal when clicking outside of it
+        $(document).on('click', '.matthew-modal', function(e) {
+            if (e.target === this) {
+                hideMemberForm();
+            }
+        });
+
+        // Close modal with Escape key
+        $(document).on('keydown', function(e) {
+            if (e.key === 'Escape' && $('#member-form-modal').is(':visible')) {
+                hideMemberForm();
+            }
+        });
+    }
+
+    /**
+     * Initialize conditional fields for sacramental information
+     */
+    function initConditionalFields() {
+        // Toggle baptism details when baptised checkbox changes
+        $(document).on('change', '#member_baptised', function() {
+            if ($(this).is(':checked')) {
+                $('#baptism-details').slideDown();
+            } else {
+                $('#baptism-details').slideUp();
+                // Clear the fields when hiding
+                $('#baptism_date').val('');
+                $('#baptism_parish').val('');
+            }
+        });
+
+        // Toggle first communion details when first communion checkbox changes
+        $(document).on('change', '#member_first_communion', function() {
+            if ($(this).is(':checked')) {
+                $('#first-communion-details').slideDown();
+            } else {
+                $('#first-communion-details').slideUp();
+                // Clear the fields when hiding
+                $('#first_communion_date').val('');
+                $('#first_communion_parish').val('');
+            }
+        });
+
+        // Toggle confirmation details when confirmed checkbox changes
+        $(document).on('change', '#member_confirmed', function() {
+            if ($(this).is(':checked')) {
+                $('#confirmation-details').slideDown();
+            } else {
+                $('#confirmation-details').slideUp();
+                // Clear the fields when hiding
+                $('#confirmation_date').val('');
+                $('#confirmation_parish').val('');
+            }
+        });
+    }
+
+    /**
      * Initialize all member functionality
      */
     function init() {
@@ -346,6 +533,7 @@
         initEditMember();
         initDeleteMember();
         initConditionalFields();
+        initModalHandlers();
     }
 
     // Export functions to global namespace
@@ -357,6 +545,7 @@
         hideMemberForm,
         resetMemberForm,
         populateMemberFormForEdit,
+        editMember,
         initMemberForm,
         initAddMemberButton,
         initCancelMemberForm,

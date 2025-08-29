@@ -55,13 +55,36 @@
             const response = await window.ParishPortal.API.getHousehold();
             console.log('Household response:', response);
 
+            // Handle both WordPress-style response format and direct API response format
+            let householdData = null;
             if (response.success && response.data) {
-                currentHouseholdData = response.data;
-                populateHouseholdForm(response.data);
+                // WordPress-style response format
+                householdData = response.data;
+            } else if (response.household) {
+                // Direct API response format
+                householdData = response.household;
+            } else if (response.success === undefined && response.id) {
+                // Direct household object
+                householdData = response;
+            }
+
+            if (householdData) {
+                currentHouseholdData = householdData;
+                populateHouseholdForm(householdData);
                 
-                // Load members if the module is available
-                if (window.ParishPortal.Members) {
-                    await window.ParishPortal.Members.loadHouseholdMembers();
+                // Load members like in the backup - either from household data or fetch separately
+                if (householdData.members && householdData.members.length > 0) {
+                    // Members included in household response
+                    console.log('Members included in household response:', householdData.members);
+                    currentHouseholdData.members = householdData.members;
+                    if (window.ParishPortal.Members) {
+                        window.ParishPortal.Members.displayMembersList(householdData.members);
+                    }
+                } else {
+                    // Load members if the module is available
+                    if (window.ParishPortal.Members) {
+                        await window.ParishPortal.Members.loadHouseholdMembers();
+                    }
                 }
             } else {
                 throw new Error(response.message || 'Failed to load household data');
@@ -87,31 +110,26 @@
     function populateHouseholdForm(data) {
         console.log('Populating household form with:', data);
         
-        $('#household_name').val(data.name || '');
-        $('#household_email').val(data.email || '');
-        $('#household_phone').val(data.phone || '');
-        $('#household_address').val(data.address || '');
+        // Handle different possible data structures like the backup did
+        const householdData = data.household || data;
         
-        // Handle relationship status if field exists
-        if ($('#household_relationship_status').length) {
-            $('#household_relationship_status').val(data.relationship_status || '');
-        }
+        $('#household_name_edit').val(householdData.name || householdData.household_name || '');
+        $('#household_address').val(householdData.address || '');
+        $('#household_city').val(householdData.city || '');
+        $('#household_province').val(householdData.province || '');
+        $('#household_postal_code').val(householdData.postal_code || '');
+        $('#household_phone_edit').val(householdData.phone || householdData.primary_phone || '');
+        $('#household_email_edit').val(householdData.email || householdData.primary_email || '');
         
-        // Handle marriage details if fields exist
-        if ($('#household_marriage_date').length && data.marriage_date) {
-            $('#household_marriage_date').val(data.marriage_date);
-        }
-        
-        if ($('#household_marriage_parish').length && data.marriage_parish) {
-            $('#household_marriage_parish').val(data.marriage_parish);
-        }
+        // Update the household title
+        $('#household-title').text(householdData.name || householdData.household_name || 'Your Household');
     }
 
     /**
      * Initialize household form submission
      */
     function initHouseholdForm() {
-        $('#household-form').off('submit').on('submit', async function(e) {
+        $('#household-info-form').off('submit').on('submit', async function(e) {
             e.preventDefault();
             
             if (!window.ParishPortal.API.hasValidToken()) {
@@ -121,28 +139,20 @@
             
             const $form = $(this);
             const $submitButton = $form.find('input[type="submit"]');
-            const $message = $('#household-message');
+            const $message = $('#household-info-message');
             
             window.ParishPortal.Utils.setButtonLoading($submitButton, 'Updating...');
             window.ParishPortal.Utils.clearMessage($message);
             
             const formData = {
-                name: $('#household_name').val(),
-                email: $('#household_email').val(),
-                phone: $('#household_phone').val(),
-                address: $('#household_address').val()
+                name: $('#household_name_edit').val(),
+                address: $('#household_address').val(),
+                city: $('#household_city').val(),
+                province: $('#household_province').val(),
+                postal_code: $('#household_postal_code').val(),
+                phone: $('#household_phone_edit').val(),
+                email: $('#household_email_edit').val()
             };
-            
-            // Add optional fields if they exist
-            if ($('#household_relationship_status').length) {
-                formData.relationship_status = $('#household_relationship_status').val();
-            }
-            if ($('#household_marriage_date').length) {
-                formData.marriage_date = $('#household_marriage_date').val();
-            }
-            if ($('#household_marriage_parish').length) {
-                formData.marriage_parish = $('#household_marriage_parish').val();
-            }
             
             console.log('Updating household with:', formData);
             
@@ -151,11 +161,14 @@
                 
                 console.log('Household update response:', response);
                 
-                if (response.success) {
-                    currentHouseholdData = response.data;
+                if (response.household) {
+                    currentHouseholdData = response.household;
                     window.ParishPortal.Utils.displaySuccess($message, 'Household information updated successfully!');
+                    
+                    // Update the title
+                    $('#household-title').text($('#household_name_edit').val());
                 } else {
-                    throw new Error(response.message || 'Failed to update household information');
+                    throw new Error('Failed to update household information');
                 }
             } catch (error) {
                 console.error('Household update error:', error);
@@ -172,14 +185,17 @@
     function initTabSwitching() {
         $('.tab-button').off('click').on('click', function() {
             const tabId = $(this).data('tab');
+            console.log('Tab button clicked, target tab:', tabId);
             
             // Update tab buttons
             $('.tab-button').removeClass('active');
             $(this).addClass('active');
             
-            // Update tab content
+            // Update tab content - use the correct tab content selector
             $('.tab-content').removeClass('active');
-            $('#' + tabId).addClass('active');
+            $('#' + tabId + '-tab').addClass('active');
+            
+            console.log('Tab switched to:', tabId);
         });
     }
 

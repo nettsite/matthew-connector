@@ -333,28 +333,6 @@ class ParishPortal {
                                 <label for="household_name_edit">Household Name</label>
                                 <input type="text" id="household_name_edit" name="name" required>
                             </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="household_address">Address</label>
-                                <input type="text" id="household_address" name="address">
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="household_city">City</label>
-                                <input type="text" id="household_city" name="city">
-                            </div>
-                            <div class="form-group">
-                                <label for="household_province">Province</label>
-                                <input type="text" id="household_province" name="province" placeholder="ON">
-                            </div>
-                            <div class="form-group">
-                                <label for="household_postal_code">Postal Code</label>
-                                <input type="text" id="household_postal_code" name="postal_code" placeholder="K1A 0B1">
-                            </div>
-                        </div>
-                        <div class="form-row">
                             <div class="form-group">
                                 <label for="household_phone_edit">Phone</label>
                                 <input type="tel" id="household_phone_edit" name="phone">
@@ -362,6 +340,20 @@ class ParishPortal {
                             <div class="form-group">
                                 <label for="household_email_edit">Email</label>
                                 <input type="email" id="household_email_edit" name="email" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="household_address">Address</label>
+                                <input type="text" id="household_address" name="address">
+                            </div>
+                            <div class="form-group">
+                                <label for="household_city">City</label>
+                                <input type="text" id="household_city" name="city">
+                            </div>
+                            <div class="form-group">
+                                <label for="household_postal_code">Postal Code</label>
+                                <input type="text" id="household_postal_code" name="postal_code">
                             </div>
                         </div>
                         <div class="form-group">
@@ -503,7 +495,7 @@ class ParishPortal {
     }
 
     public static function enqueue_assets() {
-        $version = defined('MATTHEW_CONNECTOR_VERSION') ? MATTHEW_CONNECTOR_VERSION : '1.0.1';
+        $version = MATTHEW_CONNECTOR_VERSION ; // --- IGNORE ---
         $plugin_url = defined('MATTHEW_CONNECTOR_PLUGIN_URL') ? MATTHEW_CONNECTOR_PLUGIN_URL : plugin_dir_url(dirname(__DIR__));
 
         wp_enqueue_style(
@@ -596,7 +588,7 @@ class ParishPortal {
             }
 
             // Validate required fields
-            $required_fields = ['household_name', 'primary_email', 'primary_phone', 'password'];
+            $required_fields = ['household_name', 'email', 'phone', 'password'];
             $data = json_decode($raw_input, true) ?: [];
 
             // Log decoded data for debugging
@@ -620,7 +612,7 @@ class ParishPortal {
             }
 
             // Validate email
-            if (!is_email($data['primary_email'])) {
+            if (!is_email($data['email'])) {
                 throw new \Exception('Invalid email address');
             }
 

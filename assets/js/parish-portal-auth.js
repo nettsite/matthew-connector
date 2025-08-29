@@ -47,6 +47,23 @@
     }
 
     /**
+     * Initialize auth tab switching functionality
+     */
+    function initAuthTabs() {
+        $('.auth-tab-button').off('click').on('click', function() {
+            const tabId = $(this).data('tab');
+            
+            // Update tab buttons
+            $('.auth-tab-button').removeClass('active');
+            $(this).addClass('active');
+            
+            // Update tab content
+            $('.auth-tab-content').removeClass('active');
+            $('#' + tabId + '-tab').addClass('active');
+        });
+    }
+
+    /**
      * Initialize password toggle functionality
      */
     function initPasswordToggle() {
@@ -79,8 +96,8 @@
             const $message = $('#registration-message');
             
             // Validate password match
-            const password = $('#reg_password').val();
-            const confirmPassword = $('#reg_password_confirm').val();
+            const password = $('#password').val();
+            const confirmPassword = $('#password_confirm').val();
             if (password !== confirmPassword) {
                 window.ParishPortal.Utils.displayError($message, 'Passwords do not match');
                 return;
@@ -93,14 +110,14 @@
             try {
                 // Prepare form data according to API spec
                 const formData = {
-                    name: $('#reg_name').val(),
-                    email: $('#reg_email').val(),
+                    household_name: $('#household_name').val(),
+                    email: $('#primary_email').val(),
                     password: password,
-                    phone: $('#reg_phone').val(),
-                    address: $('#reg_address').val()
+                    phone: $('#primary_phone').val()
                 };
                 
                 console.log('Submitting registration for:', formData.email);
+                console.log('Full form data being sent:', formData);
                 
                 const response = await window.ParishPortal.API.register(formData);
                 
@@ -236,6 +253,7 @@
      * Initialize all authentication functionality
      */
     function init() {
+        initAuthTabs();
         initPasswordToggle();
         initRegistrationForm();
         initLoginForm();
@@ -249,6 +267,7 @@
         checkAuthenticationStatus,
         showHouseholdManagement,
         showAuthForms,
+        initAuthTabs,
         initPasswordToggle,
         initRegistrationForm,
         initLoginForm,
