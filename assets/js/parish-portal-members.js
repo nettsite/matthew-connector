@@ -207,6 +207,14 @@
         $('#baptism-details').hide();
         $('#first-communion-details').hide();
         $('#confirmation-details').hide();
+        
+        // Clear certificate displays
+        ['baptism', 'first_communion', 'confirmation'].forEach(certType => {
+            const container = document.querySelector(`#${certType}_certificate_current`);
+            if (container) {
+                container.innerHTML = '';
+            }
+        });
     }
 
     /**
@@ -250,8 +258,167 @@
         $('#member-form input[type="submit"]').val('Update Member');
         $('#member-form h3').text('Edit Family Member');
         
+        // Load existing certificates
+        loadMemberCertificates(member.id);
+        
         showMemberForm();
         $('#member-form')[0].scrollIntoView({ behavior: 'smooth' });
+    }
+
+    /**
+     * Handle certificate file uploads for a member
+     */
+    async function handleCertificateUploads(memberId) {
+        const certificateTypes = ['baptism', 'first_communion', 'confirmation'];
+        const uploadPromises = [];
+
+        for (const certType of certificateTypes) {
+            const fileInput = document.getElementById(`${certType}_certificate`);
+            if (fileInput && fileInput.files && fileInput.files.length > 0) {
+                const file = fileInput.files[0];
+                console.log(`Uploading ${certType} certificate:`, file.name);
+                
+                uploadPromises.push(
+                    window.ParishPortal.API.uploadCertificate(memberId, certType, file)
+                        .then(result => {
+                            console.log(`${certType} certificate uploaded successfully:`, result);
+                            return { type: certType, success: true, result };
+                        })
+                        .catch(error => {
+                            console.error(`Error uploading ${certType} certificate:`, error);
+                            return { type: certType, success: false, error: error.message };
+                        })
+                );
+            }
+        }
+
+        if (uploadPromises.length > 0) {
+            console.log(`Uploading ${uploadPromises.length} certificate(s)...`);
+            const results = await Promise.all(uploadPromises);
+            
+            // Log results and show any errors
+            const failedUploads = results.filter(r => !r.success);
+            if (failedUploads.length > 0) {
+                console.warn('Some certificate uploads failed:', failedUploads);
+                // Could show specific error message to user here if needed
+            } else {
+                console.log('All certificate uploads completed successfully');
+            }
+        }
+    }
+
+    /**
+     * Load and display existing certificates for a member
+     */
+    async function loadMemberCertificates(memberId) {
+        // First check if certificate data is already available in the member object
+        const householdData = window.ParishPortal.Household.getCurrentHouseholdData();
+        if (householdData && householdData.members) {
+            const member = householdData.members.find(m => m.id == memberId);
+            if (member && member.certificates) {
+                console.log('Using certificate data from member object:', member.certificates);
+                displayCertificatesFromMemberData(member.certificates);
+                return;
+            }
+        }
+        
+        // Fallback: load certificates via API if not available in member data
+        try {
+            const certificates = await window.ParishPortal.API.getCertificates(memberId);
+            console.log('Loaded certificates via API for member:', memberId, certificates);
+            
+            // Clear any existing certificate displays
+            ['baptism', 'first_communion', 'confirmation'].forEach(certType => {
+                const container = document.querySelector(`#${certType}_certificate_current`);
+                if (container) {
+                    container.innerHTML = '';
+                }
+            });
+            
+            // Display each certificate
+            for (const [certType, certData] of Object.entries(certificates)) {
+                if (certData && certData.url) {
+                    displayExistingCertificate(certType, certData);
+                }
+            }
+            
+        } catch (error) {
+            console.error('Error loading certificates:', error);
+            // Don't show error to user as this is not critical
+        }
+    }
+
+    /**
+     * Display certificates from member data object
+     */
+    function displayCertificatesFromMemberData(certificates) {
+        // Clear any existing certificate displays
+        ['baptism', 'first_communion', 'confirmation'].forEach(certType => {
+            const container = document.querySelector(`#${certType}_certificate_current`);
+            if (container) {
+                container.innerHTML = '';
+            }
+        });
+        
+        // Display each certificate if it exists
+        for (const [certType, certData] of Object.entries(certificates)) {
+            if (certData && certData.url) {
+                displayExistingCertificate(certType, certData);
+            }
+        }
+    }
+
+    /**
+     * Display an existing certificate with download/delete options
+     */
+    function displayExistingCertificate(certType, certData) {
+        const container = document.querySelector(`#${certType}_certificate_current`);
+        if (!container) return;
+        
+        const fileName = certData.file_name || 'Certificate';
+        const downloadUrl = certData.url;
+        
+        const certificateHtml = `
+            <div class="existing-certificate">
+                <span class="certificate-name">${fileName}</span>
+                <div class="certificate-actions">
+                    <a href="${downloadUrl}" target="_blank" class="button button-small">Open</a>
+                    <button type="button" class="button button-small delete-certificate" data-cert-type="${certType}">Remove</button>
+                </div>
+            </div>
+        `;
+        
+        container.innerHTML = certificateHtml;
+        
+        // Add delete functionality
+        const deleteBtn = container.querySelector('.delete-certificate');
+        if (deleteBtn) {
+            deleteBtn.addEventListener('click', async function() {
+                if (confirm('Are you sure you want to remove this certificate?')) {
+                    await deleteMemberCertificate(currentEditingMemberId, certType);
+                }
+            });
+        }
+    }
+
+    /**
+     * Delete a member certificate
+     */
+    async function deleteMemberCertificate(memberId, certType) {
+        try {
+            await window.ParishPortal.API.deleteCertificate(memberId, certType);
+            console.log(`${certType} certificate deleted successfully`);
+            
+            // Clear the display
+            const container = document.querySelector(`#${certType}_certificate_current`);
+            if (container) {
+                container.innerHTML = '';
+            }
+            
+        } catch (error) {
+            console.error(`Error deleting ${certType} certificate:`, error);
+            alert('Failed to delete certificate. Please try again.');
+        }
     }
 
     /**
@@ -303,6 +470,23 @@
                 }
 
                 console.log('Member save response:', response);
+                
+                // Handle certificate uploads if member was saved successfully
+                // Extract member ID from different possible response formats
+                let memberId;
+                if (response.data && response.data.id) {
+                    memberId = response.data.id;
+                } else if (response.member && response.member.id) {
+                    memberId = response.member.id;
+                } else if (response.id) {
+                    memberId = response.id;
+                } else {
+                    console.error('Could not extract member ID from response:', response);
+                    throw new Error('Failed to get member ID from save response');
+                }
+                
+                console.log('Using member ID for certificate uploads:', memberId);
+                await handleCertificateUploads(memberId);
                 
                 const successMessage = isEditingMember ? 'Member updated successfully!' : 'Member added successfully!';
                 window.ParishPortal.Utils.displaySuccess($message, successMessage);

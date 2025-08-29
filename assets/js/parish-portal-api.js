@@ -9,7 +9,151 @@
     // Create global namespace if it doesn't exist
     window.ParishPortal = window.ParishPortal || {};
 
-    // API configuration cache
+    /**
+     * Upload certificate for a member
+     */
+    async function uploadCertificate(memberId, certificateType, file) {
+        const apiConfig = await getMatthewApiConfig();
+        const token = getToken();
+        
+        if (!token) {
+            throw new Error('Authentication token not found');
+        }
+
+        const formData = new FormData();
+        formData.append('certificate_type', certificateType);
+        formData.append('file', file);
+
+        try {
+            const response = await fetch(`${apiConfig.apiUrl}/api/members/${memberId}/certificates`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                },
+                body: formData
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || `Upload failed with status ${response.status}`);
+            }
+
+            const result = await response.json();
+            return result;
+
+        } catch (error) {
+            console.error('Certificate upload error:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Get certificates for a member
+     */
+    async function getCertificates(memberId) {
+        const apiConfig = await getMatthewApiConfig();
+        const token = getToken();
+        
+        if (!token) {
+            throw new Error('Authentication token not found');
+        }
+
+        try {
+            const response = await fetch(`${apiConfig.apiUrl}/api/members/${memberId}/certificates`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Accept': 'application/json',
+                }
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || `Failed to load certificates with status ${response.status}`);
+            }
+
+            const certificates = await response.json();
+            return certificates;
+
+        } catch (error) {
+            console.error('Error loading certificates:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Delete a certificate for a member
+     */
+    async function deleteCertificate(memberId, certificateType) {
+        const apiConfig = await getMatthewApiConfig();
+        const token = getToken();
+        
+        if (!token) {
+            throw new Error('Authentication token not found');
+        }
+
+        try {
+            const response = await fetch(`${apiConfig.apiUrl}/api/members/${memberId}/certificates/${certificateType}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Accept': 'application/json',
+                }
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || `Failed to delete certificate with status ${response.status}`);
+            }
+
+            const result = await response.json();
+            return result;
+
+        } catch (error) {
+            console.error('Certificate delete error:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Get certificate download URL
+     */
+    function getCertificateDownloadUrl(memberId, certificateType) {
+        const token = getToken();
+        if (!token) {
+            return null;
+        }
+
+        // This will be constructed when needed using the API config
+        return getMatthewApiConfig().then(apiConfig => {
+            return `${apiConfig.apiUrl}/api/members/${memberId}/certificates/${certificateType}/download?token=${token}`;
+        });
+    }
+
+    // Export API functions
+    window.ParishPortal.API = {
+        getMatthewApiConfig,
+        makeApiRequest,
+        register,
+        login,
+        logout,
+        getHousehold,
+        updateHousehold,
+        getMembers,
+        addMember,
+        updateMember,
+        deleteMember,
+        uploadCertificate,
+        getCertificates,
+        deleteCertificate,
+        getCertificateDownloadUrl,
+        hasValidToken,
+        getToken,
+        setToken,
+        clearToken
+    };
+
+    // Simple configuration cache
     let matthewApiConfig = null;
 
     /**
@@ -215,24 +359,5 @@
     function clearToken() {
         localStorage.removeItem('matthew_household_token');
     }
-
-    // Export functions to global namespace
-    window.ParishPortal.API = {
-        getMatthewApiConfig,
-        makeApiRequest,
-        register,
-        login,
-        logout,
-        getHousehold,
-        updateHousehold,
-        getMembers,
-        addMember,
-        updateMember,
-        deleteMember,
-        hasValidToken,
-        getToken,
-        setToken,
-        clearToken
-    };
 
 })(jQuery);

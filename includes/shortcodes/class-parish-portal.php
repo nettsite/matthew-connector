@@ -23,10 +23,10 @@ class ParishPortal {
         add_action('wp_enqueue_scripts', [self::class, 'enqueue_assets']);
         
         // Register AJAX handlers
-        add_action('wp_ajax_matthew_register_household', [self::class, 'handle_registration']);
-        add_action('wp_ajax_nopriv_matthew_register_household', [self::class, 'handle_registration']);
-        add_action('wp_ajax_matthew_login_household', [self::class, 'handle_login']);
-        add_action('wp_ajax_nopriv_matthew_login_household', [self::class, 'handle_login']);
+        // add_action('wp_ajax_matthew_register_household', [self::class, 'handle_registration']);
+        // add_action('wp_ajax_nopriv_matthew_register_household', [self::class, 'handle_registration']);
+        // add_action('wp_ajax_matthew_login_household', [self::class, 'handle_login']);
+        // add_action('wp_ajax_nopriv_matthew_login_household', [self::class, 'handle_login']);
     }
 
 
@@ -467,6 +467,19 @@ class ParishPortal {
                                             <input type="text" id="baptism_parish" name="baptism_parish">
                                         </div>
                                     </div>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label for="baptism_certificate">Baptism Certificate</label>
+                                            <input type="file" id="baptism_certificate" name="baptism_certificate" 
+                                                   accept=".pdf,.jpg,.jpeg,.png" class="certificate-upload">
+                                            <small class="help-text">Upload certificate (PDF, JPG, or PNG)</small>
+                                            <div id="baptism_certificate_current" class="current-certificate" style="display: none;">
+                                                <p>Current certificate: <a href="#" target="_blank" id="baptism_certificate_link"></a></p>
+                                                <button type="button" class="button button-secondary remove-certificate" 
+                                                        data-certificate-type="baptism">Remove Certificate</button>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
 
                                 <div class="form-group">
@@ -486,6 +499,19 @@ class ParishPortal {
                                             <input type="text" id="first_communion_parish" name="first_communion_parish">
                                         </div>
                                     </div>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label for="first_communion_certificate">First Communion Certificate</label>
+                                            <input type="file" id="first_communion_certificate" name="first_communion_certificate" 
+                                                   accept=".pdf,.jpg,.jpeg,.png" class="certificate-upload">
+                                            <small class="help-text">Upload certificate (PDF, JPG, or PNG)</small>
+                                            <div id="first_communion_certificate_current" class="current-certificate" style="display: none;">
+                                                <p>Current certificate: <a href="#" target="_blank" id="first_communion_certificate_link"></a></p>
+                                                <button type="button" class="button button-secondary remove-certificate" 
+                                                        data-certificate-type="first_communion">Remove Certificate</button>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
 
                                 <div class="form-group">
@@ -503,6 +529,19 @@ class ParishPortal {
                                         <div class="form-group">
                                             <label for="confirmation_parish">Confirmation Parish</label>
                                             <input type="text" id="confirmation_parish" name="confirmation_parish">
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label for="confirmation_certificate">Confirmation Certificate</label>
+                                            <input type="file" id="confirmation_certificate" name="confirmation_certificate" 
+                                                   accept=".pdf,.jpg,.jpeg,.png" class="certificate-upload">
+                                            <small class="help-text">Upload certificate (PDF, JPG, or PNG)</small>
+                                            <div id="confirmation_certificate_current" class="current-certificate" style="display: none;">
+                                                <p>Current certificate: <a href="#" target="_blank" id="confirmation_certificate_link"></a></p>
+                                                <button type="button" class="button button-secondary remove-certificate" 
+                                                        data-certificate-type="confirmation">Remove Certificate</button>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
