@@ -171,6 +171,11 @@
             
             isEditingMember = true;
             currentEditingMemberId = member.id;
+            
+            // Load certificates after modal is shown and form is populated
+            setTimeout(() => {
+                loadMemberCertificates(member.id);
+            }, 100);
         } else {
             $('#member-form-title').text('Add New Member');
             resetMemberForm();
@@ -258,9 +263,6 @@
         $('#member-form input[type="submit"]').val('Update Member');
         $('#member-form h3').text('Edit Family Member');
         
-        // Load existing certificates
-        loadMemberCertificates(member.id);
-        
         showMemberForm();
         $('#member-form')[0].scrollIntoView({ behavior: 'smooth' });
     }
@@ -311,18 +313,29 @@
      * Load and display existing certificates for a member
      */
     async function loadMemberCertificates(memberId) {
+        console.log('loadMemberCertificates called with memberId:', memberId);
+        
         // First check if certificate data is already available in the member object
         const householdData = window.ParishPortal.Household.getCurrentHouseholdData();
+        console.log('householdData:', householdData);
+        
         if (householdData && householdData.members) {
             const member = householdData.members.find(m => m.id == memberId);
+            console.log('Found member:', member);
+            
             if (member && member.certificates) {
                 console.log('Using certificate data from member object:', member.certificates);
                 displayCertificatesFromMemberData(member.certificates);
                 return;
+            } else {
+                console.log('No certificates property found in member object');
             }
+        } else {
+            console.log('No household data or members found');
         }
         
         // Fallback: load certificates via API if not available in member data
+        console.log('Falling back to API call for certificates');
         try {
             const certificates = await window.ParishPortal.API.getCertificates(memberId);
             console.log('Loaded certificates via API for member:', memberId, certificates);
@@ -352,18 +365,27 @@
      * Display certificates from member data object
      */
     function displayCertificatesFromMemberData(certificates) {
+        console.log('displayCertificatesFromMemberData called with:', certificates);
+        
         // Clear any existing certificate displays
         ['baptism', 'first_communion', 'confirmation'].forEach(certType => {
             const container = document.querySelector(`#${certType}_certificate_current`);
             if (container) {
                 container.innerHTML = '';
+                console.log(`Cleared container for ${certType}`);
+            } else {
+                console.log(`Container not found for ${certType}`);
             }
         });
         
         // Display each certificate if it exists
         for (const [certType, certData] of Object.entries(certificates)) {
+            console.log(`Processing certificate ${certType}:`, certData);
             if (certData && certData.url) {
+                console.log(`Displaying certificate for ${certType}`);
                 displayExistingCertificate(certType, certData);
+            } else {
+                console.log(`No valid certificate data for ${certType}`);
             }
         }
     }
@@ -372,24 +394,77 @@
      * Display an existing certificate with download/delete options
      */
     function displayExistingCertificate(certType, certData) {
+        console.log(`displayExistingCertificate called for ${certType}:`, certData);
+        
         const container = document.querySelector(`#${certType}_certificate_current`);
-        if (!container) return;
+        if (!container) {
+            console.error(`Container not found for certificate type: ${certType}`);
+            return;
+        }
         
         const fileName = certData.file_name || 'Certificate';
         const downloadUrl = certData.url;
         
+        // Limit file name length for display
+        const displayFileName = fileName.length > 30 ? fileName.substring(0, 27) + '...' : fileName;
+        
+        console.log(`Creating certificate display for ${certType} with file: ${fileName}`);
+        
         const certificateHtml = `
-            <div class="existing-certificate">
-                <span class="certificate-name">${fileName}</span>
-                <div class="certificate-actions">
-                    <a href="${downloadUrl}" target="_blank" class="button button-small">Open</a>
-                    <button type="button" class="button button-small delete-certificate" data-cert-type="${certType}">Remove</button>
+            <div class="existing-certificate" style="margin-top: 8px; padding: 8px; border: 1px solid #ddd; border-radius: 4px; background: #f9f9f9; display: flex; align-items: center; width: 100%;">
+                <span style="font-size: 13px; color: #555; flex-grow: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${fileName}">${displayFileName}</span>
+                <div class="certificate-actions" style="display: flex; gap: 8px; flex-shrink: 0; margin-left: 12px;">
+                    <button type="button" class="button button-small download-certificate" data-cert-type="${certType}" style="padding: 4px 8px; font-size: 12px; line-height: 1.2;">Download</button>
+                    <button type="button" class="button button-small button-secondary delete-certificate" data-cert-type="${certType}" style="padding: 4px 8px; font-size: 12px; line-height: 1.2;">Delete</button>
                 </div>
             </div>
         `;
         
         container.innerHTML = certificateHtml;
+        container.style.display = 'block';
+        console.log(`Certificate display set for ${certType}:`, container.innerHTML);
         
+        // Add secure download functionality
+        const downloadBtn = container.querySelector('.download-certificate');
+        if (downloadBtn) {
+            downloadBtn.addEventListener('click', async function() {
+                try {
+                    const token = window.ParishPortal.API.getToken();
+                    if (!token) {
+                        alert('Authentication token not found. Please log in again.');
+                        return;
+                    }
+                    downloadBtn.disabled = true;
+                    downloadBtn.textContent = 'Downloading...';
+                    const response = await fetch(downloadUrl, {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                        }
+                    });
+                    if (!response.ok) {
+                        throw new Error('Download failed.');
+                    }
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = fileName;
+                    document.body.appendChild(a);
+                    a.click();
+                    setTimeout(() => {
+                        window.URL.revokeObjectURL(url);
+                        document.body.removeChild(a);
+                    }, 100);
+                    downloadBtn.textContent = 'Download';
+                    downloadBtn.disabled = false;
+                } catch (err) {
+                    alert('Failed to download file.');
+                    downloadBtn.textContent = 'Download';
+                    downloadBtn.disabled = false;
+                }
+            });
+        }
         // Add delete functionality
         const deleteBtn = container.querySelector('.delete-certificate');
         if (deleteBtn) {
@@ -398,6 +473,7 @@
                     await deleteMemberCertificate(currentEditingMemberId, certType);
                 }
             });
+            console.log(`Delete button event listener added for ${certType}`);
         }
     }
 
