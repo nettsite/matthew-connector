@@ -138,7 +138,7 @@
             }
             
             const $form = $(this);
-            const $submitButton = $form.find('input[type="submit"]');
+            const $submitButton = $form.find('button[type="submit"], input[type="submit"]');
             const $message = $('#household-info-message');
             
             window.ParishPortal.Utils.setButtonLoading($submitButton, 'Updating...');

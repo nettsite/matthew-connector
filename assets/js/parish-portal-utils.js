@@ -56,16 +56,45 @@
      * Show loading state on button
      */
     function setButtonLoading($button, loadingText) {
+        console.log('Setting button loading state:', loadingText);
+        console.log('Button object:', $button);
+        console.log('Button length:', $button.length);
+        console.log('Button element:', $button[0]);
+        console.log('Button before:', $button.html());
+        
+        if ($button.length === 0) {
+            console.error('Button not found! Cannot set loading state.');
+            return;
+        }
+        
         $button.data('original-text', $button.text());
-        $button.prop('disabled', true).text(loadingText);
+        $button.data('original-html', $button.html());
+        $button.prop('disabled', true);
+        
+        // Add spinner and loading text (CSS is already in the main stylesheet)
+        const spinnerHtml = '<span class="loading-spinner"></span>';
+        const newHtml = spinnerHtml + loadingText;
+        $button.html(newHtml);
+        console.log('Button after:', $button.html());
+        console.log('Button loading state applied');
     }
 
     /**
      * Reset button from loading state
      */
     function resetButton($button) {
+        console.log('Resetting button from loading state');
         const originalText = $button.data('original-text');
-        $button.prop('disabled', false).text(originalText);
+        const originalHtml = $button.data('original-html');
+        $button.prop('disabled', false);
+        
+        // Restore original content (text or HTML)
+        if (originalHtml && originalHtml !== originalText) {
+            $button.html(originalHtml);
+        } else {
+            $button.text(originalText);
+        }
+        console.log('Button reset completed');
     }
 
     /**

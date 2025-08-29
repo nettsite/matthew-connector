@@ -229,6 +229,36 @@ class ParishPortal {
         .password-toggle.hidden {
             opacity: 0.5;
         }
+        
+        /* Loading button styles */
+        .matthew-portal-container button:disabled, 
+        .matthew-portal-container input[type="submit"]:disabled {
+            opacity: 0.7 !important;
+            cursor: not-allowed !important;
+            position: relative;
+        }
+        
+        .matthew-portal-container button:disabled:hover, 
+        .matthew-portal-container input[type="submit"]:disabled:hover {
+            opacity: 0.7 !important;
+        }
+        
+        .matthew-portal-container .loading-spinner {
+            display: inline-block !important;
+            width: 12px !important;
+            height: 12px !important;
+            border: 2px solid #ccc !important;
+            border-top-color: #333 !important;
+            border-radius: 50% !important;
+            animation: spin 1s linear infinite !important;
+            margin-right: 8px !important;
+            vertical-align: middle !important;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
         </style>
         
         <div id="matthew-parish-portal" class="matthew-portal-container">

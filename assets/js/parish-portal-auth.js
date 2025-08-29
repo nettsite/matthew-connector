@@ -92,7 +92,7 @@
             e.preventDefault();
             
             const $form = $(this);
-            const $submitButton = $form.find('input[type="submit"]');
+            const $submitButton = $form.find('button[type="submit"], input[type="submit"]');
             const $message = $('#registration-message');
             
             // Validate password match
@@ -164,7 +164,7 @@
             e.preventDefault();
             
             const $form = $(this);
-            const $submitButton = $form.find('input[type="submit"]');
+            const $submitButton = $form.find('button[type="submit"], input[type="submit"]');
             const $message = $('#login-message');
             
             // Show loading state

@@ -267,7 +267,7 @@
             }
             
             const $form = $(this);
-            const $submitButton = $form.find('input[type="submit"]');
+            const $submitButton = $form.find('button[type="submit"], input[type="submit"]');
             const $message = $('#members-message');
             
             const loadingText = isEditingMember ? 'Updating...' : 'Adding...';
@@ -362,12 +362,16 @@
      */
     function initDeleteMember() {
         $(document).off('click', '.delete-member-btn').on('click', '.delete-member-btn', async function() {
-            const memberId = $(this).data('member-id');
-            const memberName = $(this).closest('.member-card').find('h4').text();
+            const $deleteButton = $(this);
+            const memberId = $deleteButton.data('member-id');
+            const memberName = $deleteButton.closest('.member-card').find('h4').text();
             
             if (!confirm(`Are you sure you want to delete ${memberName}?`)) {
                 return;
             }
+            
+            // Show loading state immediately
+            window.ParishPortal.Utils.setButtonLoading($deleteButton, 'Deleting...');
             
             try {
                 console.log('Deleting member:', memberId);
@@ -381,6 +385,9 @@
             } catch (error) {
                 console.error('Member delete error:', error);
                 window.ParishPortal.Utils.displayError($('#members-message'), error.responseJSON || error);
+            } finally {
+                // Reset button state (in case of error, since successful delete removes the button)
+                window.ParishPortal.Utils.resetButton($deleteButton);
             }
         });
     }
