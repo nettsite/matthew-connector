@@ -13,7 +13,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('MATTHEW_CONNECTOR_VERSION', '1.0.5');
+define('MATTHEW_CONNECTOR_VERSION', '1.0.6');
 define('MATTHEW_CONNECTOR_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('MATTHEW_CONNECTOR_PLUGIN_URL', plugin_dir_url(__FILE__));
 

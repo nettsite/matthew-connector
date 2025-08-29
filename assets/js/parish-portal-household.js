@@ -162,7 +162,13 @@
                 console.log('Household update response:', response);
                 
                 if (response.household) {
+                    // Preserve existing members when updating household data
+                    const existingMembers = currentHouseholdData ? currentHouseholdData.members : null;
                     currentHouseholdData = response.household;
+                    if (existingMembers) {
+                        currentHouseholdData.members = existingMembers;
+                    }
+                    
                     window.ParishPortal.Utils.displaySuccess($message, 'Household information updated successfully!');
                     
                     // Update the title
