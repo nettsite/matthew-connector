@@ -25,7 +25,7 @@
         formData.append('file', file);
 
         try {
-            const response = await fetch(`${apiConfig.apiUrl}/api/members/${memberId}/certificates`, {
+            const response = await fetch(`${apiConfig.apiUrl}/members/${memberId}/certificates`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -59,7 +59,7 @@
         }
 
         try {
-            const response = await fetch(`${apiConfig.apiUrl}/api/members/${memberId}/certificates`, {
+            const response = await fetch(`${apiConfig.apiUrl}/members/${memberId}/certificates`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -93,7 +93,7 @@
         }
 
         try {
-            const response = await fetch(`${apiConfig.apiUrl}/api/members/${memberId}/certificates/${certificateType}`, {
+            const response = await fetch(`${apiConfig.apiUrl}/members/${memberId}/certificates/${certificateType}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -126,7 +126,7 @@
 
         // This will be constructed when needed using the API config
         return getMatthewApiConfig().then(apiConfig => {
-            return `${apiConfig.apiUrl}/api/members/${memberId}/certificates/${certificateType}/download?token=${token}`;
+            return `${apiConfig.apiUrl}/members/${memberId}/certificates/${certificateType}/download?token=${token}`;
         });
     }
 
