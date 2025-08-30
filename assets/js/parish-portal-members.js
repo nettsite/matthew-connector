@@ -195,6 +195,11 @@
         $('#first-communion-details').hide();
         $('#confirmation-details').hide();
         $('#member-form-message').html('').removeClass('error success');
+        
+        // Clear certificate displays
+        ['baptism', 'first_communion', 'confirmation'].forEach(certType => {
+            $(`#${certType}_certificate_current`).hide();
+        });
     }
 
     /**
@@ -215,10 +220,7 @@
         
         // Clear certificate displays
         ['baptism', 'first_communion', 'confirmation'].forEach(certType => {
-            const container = document.querySelector(`#${certType}_certificate_current`);
-            if (container) {
-                container.innerHTML = '';
-            }
+            $(`#${certType}_certificate_current`).hide();
         });
     }
 
@@ -791,6 +793,144 @@
     }
 
     /**
+     * Load and display certificates for a member
+     */
+    async function loadMemberCertificates(memberId) {
+        try {
+            console.log('Loading certificates for member:', memberId);
+            const response = await window.ParishPortal.API.getCertificates(memberId);
+            console.log('Certificate API response:', response);
+            
+            // Handle the API response format
+            let certificates = response;
+            if (response.success && response.data) {
+                certificates = response.data;
+            }
+            
+            console.log('Processed certificates:', certificates);
+            
+            // Display certificates for each type
+            displayCertificate('baptism', certificates.baptism);
+            displayCertificate('first_communion', certificates.first_communion);
+            displayCertificate('confirmation', certificates.confirmation);
+            
+        } catch (error) {
+            console.error('Error loading certificates:', error);
+        }
+    }
+
+    /**
+     * Display a certificate in the form
+     */
+    function displayCertificate(certificateType, certificate) {
+        const $currentDiv = $(`#${certificateType}_certificate_current`);
+        const $link = $(`#${certificateType}_certificate_link`);
+        
+        if (certificate && certificate.file_name) {
+            // Show the current certificate section
+            $currentDiv.show();
+            
+            // Update the link text and click handler
+            $link.text(certificate.file_name);
+            $link.off('click').on('click', async function(e) {
+                e.preventDefault();
+                await downloadCertificate(currentEditingMemberId, certificateType);
+            });
+            
+        } else {
+            // Hide the current certificate section
+            $currentDiv.hide();
+        }
+    }
+
+    /**
+     * Download a certificate file
+     */
+    async function downloadCertificate(memberId, certificateType) {
+        try {
+            const downloadUrl = await window.ParishPortal.API.getCertificateDownloadUrl(memberId, certificateType);
+            if (downloadUrl) {
+                // Create a temporary link and click it to trigger download
+                const link = document.createElement('a');
+                link.href = downloadUrl;
+                link.target = '_blank';
+                link.download = ''; // This will use the filename from the server
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            } else {
+                console.error('Failed to get download URL');
+                window.ParishPortal.Utils.displayError($('#member-form-message'), 'Failed to generate download URL');
+            }
+        } catch (error) {
+            console.error('Error downloading certificate:', error);
+            window.ParishPortal.Utils.displayError($('#member-form-message'), error);
+        }
+    }
+
+    /**
+     * Initialize certificate upload handlers
+     */
+    function initCertificateHandlers() {
+        // Handle certificate uploads
+        $(document).on('change', '.certificate-upload', async function() {
+            const file = this.files[0];
+            if (!file) return;
+            
+            const certificateType = this.name.replace('_certificate', '');
+            
+            if (!currentEditingMemberId) {
+                window.ParishPortal.Utils.displayError($('#member-form-message'), 'Please save the member first before uploading certificates.');
+                $(this).val(''); // Clear the file input
+                return;
+            }
+            
+            try {
+                console.log('Uploading certificate:', certificateType, file.name);
+                const result = await window.ParishPortal.API.uploadCertificate(currentEditingMemberId, certificateType, file);
+                console.log('Certificate uploaded successfully:', result);
+                
+                // Refresh the certificate display
+                await loadMemberCertificates(currentEditingMemberId);
+                
+                // Clear the file input
+                $(this).val('');
+                
+                window.ParishPortal.Utils.displaySuccess($('#member-form-message'), 'Certificate uploaded successfully!');
+                
+            } catch (error) {
+                console.error('Error uploading certificate:', error);
+                window.ParishPortal.Utils.displayError($('#member-form-message'), error.message || 'Failed to upload certificate');
+                $(this).val(''); // Clear the file input
+            }
+        });
+        
+        // Handle certificate removal
+        $(document).on('click', '.remove-certificate', async function() {
+            if (!confirm('Are you sure you want to remove this certificate?')) {
+                return;
+            }
+            
+            const certificateType = $(this).data('certificate-type');
+            
+            try {
+                console.log('Removing certificate:', certificateType);
+                await window.ParishPortal.API.deleteCertificate(currentEditingMemberId, certificateType);
+                console.log('Certificate removed successfully');
+                
+                // Refresh the certificate display
+                await loadMemberCertificates(currentEditingMemberId);
+                
+                window.ParishPortal.Utils.displaySuccess($('#member-form-message'), 'Certificate removed successfully!');
+                
+            } catch (error) {
+                console.error('Error removing certificate:', error);
+                window.ParishPortal.Utils.displayError($('#member-form-message'), error.message || 'Failed to remove certificate');
+            }
+        });
+    }
+
+    /**
      * Initialize all member functionality
      */
     function init() {
@@ -801,6 +941,7 @@
         initDeleteMember();
         initConditionalFields();
         initModalHandlers();
+        initCertificateHandlers();
     }
 
     // Export functions to global namespace
@@ -818,7 +959,11 @@
         initCancelMemberForm,
         initEditMember,
         initDeleteMember,
-        initConditionalFields
+        initConditionalFields,
+        loadMemberCertificates,
+        displayCertificate,
+        downloadCertificate,
+        initCertificateHandlers
     };
 
 })(jQuery);
