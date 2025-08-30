@@ -199,6 +199,7 @@
         // Clear certificate displays
         ['baptism', 'first_communion', 'confirmation'].forEach(certType => {
             $(`#${certType}_certificate_current`).hide();
+            $(`#${certType}_certificate_filename`).text('');
         });
     }
 
@@ -221,6 +222,7 @@
         // Clear certificate displays
         ['baptism', 'first_communion', 'confirmation'].forEach(certType => {
             $(`#${certType}_certificate_current`).hide();
+            $(`#${certType}_certificate_filename`).text('');
         });
     }
 
@@ -824,18 +826,14 @@
      */
     function displayCertificate(certificateType, certificate) {
         const $currentDiv = $(`#${certificateType}_certificate_current`);
-        const $link = $(`#${certificateType}_certificate_link`);
+        const $filename = $(`#${certificateType}_certificate_filename`);
         
         if (certificate && certificate.file_name) {
             // Show the current certificate section
             $currentDiv.show();
             
-            // Update the link text and click handler
-            $link.text(certificate.file_name);
-            $link.off('click').on('click', async function(e) {
-                e.preventDefault();
-                await downloadCertificate(currentEditingMemberId, certificateType);
-            });
+            // Update the filename display
+            $filename.text(certificate.file_name);
             
         } else {
             // Hide the current certificate section
@@ -848,23 +846,11 @@
      */
     async function downloadCertificate(memberId, certificateType) {
         try {
-            const downloadUrl = await window.ParishPortal.API.getCertificateDownloadUrl(memberId, certificateType);
-            if (downloadUrl) {
-                // Create a temporary link and click it to trigger download
-                const link = document.createElement('a');
-                link.href = downloadUrl;
-                link.target = '_blank';
-                link.download = ''; // This will use the filename from the server
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-            } else {
-                console.error('Failed to get download URL');
-                window.ParishPortal.Utils.displayError($('#member-form-message'), 'Failed to generate download URL');
-            }
+            const result = await window.ParishPortal.API.downloadCertificate(memberId, certificateType);
+            console.log('Certificate downloaded successfully:', result);
         } catch (error) {
             console.error('Error downloading certificate:', error);
-            window.ParishPortal.Utils.displayError($('#member-form-message'), error);
+            window.ParishPortal.Utils.displayError($('#member-form-message'), error.message || 'Failed to download certificate');
         }
     }
 
@@ -902,6 +888,25 @@
                 console.error('Error uploading certificate:', error);
                 window.ParishPortal.Utils.displayError($('#member-form-message'), error.message || 'Failed to upload certificate');
                 $(this).val(''); // Clear the file input
+            }
+        });
+        
+        // Handle certificate downloads
+        $(document).on('click', '.download-certificate', async function() {
+            const certificateType = $(this).data('certificate-type');
+            
+            if (!currentEditingMemberId) {
+                window.ParishPortal.Utils.displayError($('#member-form-message'), 'No member selected.');
+                return;
+            }
+            
+            try {
+                console.log('Downloading certificate:', certificateType);
+                await downloadCertificate(currentEditingMemberId, certificateType);
+                
+            } catch (error) {
+                console.error('Error downloading certificate:', error);
+                window.ParishPortal.Utils.displayError($('#member-form-message'), error.message || 'Failed to download certificate');
             }
         });
         

@@ -116,18 +116,59 @@
     }
 
     /**
-     * Get certificate download URL
+     * Download certificate file with proper authentication
      */
-    function getCertificateDownloadUrl(memberId, certificateType) {
+    async function downloadCertificate(memberId, certificateType) {
+        const apiConfig = await getMatthewApiConfig();
         const token = getToken();
+        
         if (!token) {
-            return null;
+            throw new Error('Authentication token not found');
         }
 
-        // This will be constructed when needed using the API config
-        return getMatthewApiConfig().then(apiConfig => {
-            return `${apiConfig.apiUrl}/api/members/${memberId}/certificates/${certificateType}/download?token=${token}`;
-        });
+        try {
+            const response = await fetch(`${apiConfig.apiUrl}/api/members/${memberId}/certificates/${certificateType}/download`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Accept': 'application/octet-stream',
+                }
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({ message: 'Download failed' }));
+                throw new Error(errorData.message || `Download failed with status ${response.status}`);
+            }
+
+            // Get the filename from the Content-Disposition header
+            const contentDisposition = response.headers.get('Content-Disposition');
+            let filename = 'certificate';
+            if (contentDisposition) {
+                const matches = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+                if (matches && matches[1]) {
+                    filename = matches[1].replace(/['"]/g, '');
+                }
+            }
+
+            // Create a blob from the response
+            const blob = await response.blob();
+            
+            // Create a temporary URL and download link
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+
+            return { success: true, filename };
+
+        } catch (error) {
+            console.error('Certificate download error:', error);
+            throw error;
+        }
     }
 
     // Export API functions
@@ -146,7 +187,7 @@
         uploadCertificate,
         getCertificates,
         deleteCertificate,
-        getCertificateDownloadUrl,
+        downloadCertificate,
         hasValidToken,
         getToken,
         setToken,

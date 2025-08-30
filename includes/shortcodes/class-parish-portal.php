@@ -474,9 +474,13 @@ class ParishPortal {
                                                    accept=".pdf,.jpg,.jpeg,.png" class="certificate-upload">
                                             <small class="help-text">Upload certificate (PDF, JPG, or PNG)</small>
                                             <div id="baptism_certificate_current" class="current-certificate" style="display: none;">
-                                                <p>Current certificate: <a href="#" target="_blank" id="baptism_certificate_link"></a></p>
-                                                <button type="button" class="button button-secondary remove-certificate" 
-                                                        data-certificate-type="baptism">Remove Certificate</button>
+                                                <p>Current certificate: <span id="baptism_certificate_filename"></span></p>
+                                                <div class="certificate-actions">
+                                                    <button type="button" class="button button-primary download-certificate" 
+                                                            data-certificate-type="baptism">Download</button>
+                                                    <button type="button" class="button button-secondary remove-certificate" 
+                                                            data-certificate-type="baptism">Remove</button>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -506,9 +510,13 @@ class ParishPortal {
                                                    accept=".pdf,.jpg,.jpeg,.png" class="certificate-upload">
                                             <small class="help-text">Upload certificate (PDF, JPG, or PNG)</small>
                                             <div id="first_communion_certificate_current" class="current-certificate" style="display: none;">
-                                                <p>Current certificate: <a href="#" target="_blank" id="first_communion_certificate_link"></a></p>
-                                                <button type="button" class="button button-secondary remove-certificate" 
-                                                        data-certificate-type="first_communion">Remove Certificate</button>
+                                                <p>Current certificate: <span id="first_communion_certificate_filename"></span></p>
+                                                <div class="certificate-actions">
+                                                    <button type="button" class="button button-primary download-certificate" 
+                                                            data-certificate-type="first_communion">Download</button>
+                                                    <button type="button" class="button button-secondary remove-certificate" 
+                                                            data-certificate-type="first_communion">Remove</button>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -538,9 +546,13 @@ class ParishPortal {
                                                    accept=".pdf,.jpg,.jpeg,.png" class="certificate-upload">
                                             <small class="help-text">Upload certificate (PDF, JPG, or PNG)</small>
                                             <div id="confirmation_certificate_current" class="current-certificate" style="display: none;">
-                                                <p>Current certificate: <a href="#" target="_blank" id="confirmation_certificate_link"></a></p>
-                                                <button type="button" class="button button-secondary remove-certificate" 
-                                                        data-certificate-type="confirmation">Remove Certificate</button>
+                                                <p>Current certificate: <span id="confirmation_certificate_filename"></span></p>
+                                                <div class="certificate-actions">
+                                                    <button type="button" class="button button-primary download-certificate" 
+                                                            data-certificate-type="confirmation">Download</button>
+                                                    <button type="button" class="button button-secondary remove-certificate" 
+                                                            data-certificate-type="confirmation">Remove</button>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>

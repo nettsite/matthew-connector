@@ -525,3 +525,40 @@ button:disabled,
 #matthew-parish-portal .form-row {
     margin-bottom: 0.5em !important;
 }
+
+/* Certificate Management Styles */
+#matthew-parish-portal .current-certificate {
+    margin-top: 0.5em;
+    padding: 0.75em;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+}
+
+#matthew-parish-portal .current-certificate p {
+    margin: 0 0 0.5em 0;
+    font-weight: 500;
+}
+
+#matthew-parish-portal .certificate-actions {
+    display: flex;
+    gap: 0.5em;
+    flex-wrap: wrap;
+}
+
+#matthew-parish-portal .certificate-actions .button {
+    margin: 0 !important;
+    padding: 4px 12px !important;
+    font-size: 12px !important;
+    line-height: 1.4 !important;
+    min-height: auto !important;
+}
+
+#matthew-parish-portal .certificate-actions .download-certificate {
+    background-color: #007cba !important;
+    border-color: #005a87 !important;
+}
+
+#matthew-parish-portal .certificate-actions .download-certificate:hover {
+    background-color: #005a87 !important;
+}
