@@ -473,11 +473,11 @@ class ParishPortal {
                                 <div id="baptism-details" style="display: none;">
                                     <div class="form-row">
                                         <div class="form-group">
-                                            <label for="baptism_date">Baptism Date</label>
+                                            <label for="baptism_date">Date</label>
                                             <input type="date" id="baptism_date" name="baptism_date">
                                         </div>
                                         <div class="form-group">
-                                            <label for="baptism_parish">Baptism Parish</label>
+                                            <label for="baptism_parish">Parish</label>
                                             <input type="text" id="baptism_parish" name="baptism_parish">
                                         </div>
                                     </div>
@@ -509,11 +509,11 @@ class ParishPortal {
                                 <div id="first-communion-details" style="display: none;">
                                     <div class="form-row">
                                         <div class="form-group">
-                                            <label for="first_communion_date">First Communion Date</label>
+                                            <label for="first_communion_date">Date</label>
                                             <input type="date" id="first_communion_date" name="first_communion_date">
                                         </div>
                                         <div class="form-group">
-                                            <label for="first_communion_parish">First Communion Parish</label>
+                                            <label for="first_communion_parish">Parish</label>
                                             <input type="text" id="first_communion_parish" name="first_communion_parish">
                                         </div>
                                     </div>
@@ -545,11 +545,11 @@ class ParishPortal {
                                 <div id="confirmation-details" style="display: none;">
                                     <div class="form-row">
                                         <div class="form-group">
-                                            <label for="confirmation_date">Confirmation Date</label>
+                                            <label for="confirmation_date">Date</label>
                                             <input type="date" id="confirmation_date" name="confirmation_date">
                                         </div>
                                         <div class="form-group">
-                                            <label for="confirmation_parish">Confirmation Parish</label>
+                                            <label for="confirmation_parish">Parish</label>
                                             <input type="text" id="confirmation_parish" name="confirmation_parish">
                                         </div>
                                     </div>
