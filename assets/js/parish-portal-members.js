@@ -131,6 +131,11 @@
         console.log('Modal shown, visible:', $modal.is(':visible'));
         
         if (member) {
+            // Hide certificate upload notice when editing existing member
+            $('#certificate-upload-notice').hide();
+            // Show certificate upload sections when editing existing member
+            $('.certificate-upload-section').show();
+            
             $('#member-form-title').text('Edit Member');
             $('#member_id').val(member.id);
             
@@ -183,6 +188,11 @@
                 loadMemberCertificates(member.id);
             }, 100);
         } else {
+            // Show certificate upload notice when adding new member
+            $('#certificate-upload-notice').show();
+            // Hide certificate upload sections when adding new member
+            $('.certificate-upload-section').hide();
+            
             $('#member-form-title').text('Add New Member');
             resetMemberForm();
         }
@@ -203,6 +213,10 @@
         $('#first-communion-details').hide();
         $('#confirmation-details').hide();
         $('#member-form-message').html('').removeClass('error success');
+        
+        // Hide certificate upload notice and show certificate sections by default
+        $('#certificate-upload-notice').hide();
+        $('.certificate-upload-section').show();
         
         // Clear certificate displays
         ['baptism', 'first_communion', 'confirmation'].forEach(certType => {
@@ -470,7 +484,23 @@
                     const url = window.URL.createObjectURL(blob);
                     const a = document.createElement('a');
                     a.href = url;
-                    a.download = fileName;
+                    
+                    // Create meaningful filename with member name and sacrament
+                    const householdData = window.ParishPortal.Household.getCurrentHouseholdData();
+                    const member = householdData && householdData.members ? 
+                        householdData.members.find(m => m.id == currentEditingMemberId) : null;
+                    
+                    if (member) {
+                        // Get file extension from original filename
+                        const fileExtension = fileName.split('.').pop() || 'pdf';
+                        const sacramentName = certType === 'first_communion' ? 'First Communion' : 
+                                            certType.charAt(0).toUpperCase() + certType.slice(1);
+                        const memberName = `${member.first_name} ${member.last_name}`;
+                        a.download = `${memberName} ${sacramentName} Certificate.${fileExtension}`;
+                    } else {
+                        a.download = fileName; // Fallback to original filename
+                    }
+                    
                     document.body.appendChild(a);
                     a.click();
                     setTimeout(() => {
@@ -885,7 +915,21 @@
      */
     async function downloadCertificate(memberId, certificateType) {
         try {
-            const result = await window.ParishPortal.API.downloadCertificate(memberId, certificateType);
+            // Get current member info for filename
+            const member = await window.ParishPortal.API.getMember(memberId);
+            
+            // Generate proper filename: "FirstName LastName SacramentType Certificate.ext"
+            const sacramentNames = {
+                'baptism': 'Baptism',
+                'first_communion': 'First Communion',
+                'confirmation': 'Confirmation'
+            };
+            
+            const sacramentName = sacramentNames[certificateType] || certificateType;
+            const memberName = `${member.first_name} ${member.last_name}`;
+            const baseFilename = `${memberName} ${sacramentName} Certificate`;
+            
+            const result = await window.ParishPortal.API.downloadCertificateWithFilename(memberId, certificateType, baseFilename);
             console.log('Certificate downloaded successfully:', result);
         } catch (error) {
             console.error('Error downloading certificate:', error);

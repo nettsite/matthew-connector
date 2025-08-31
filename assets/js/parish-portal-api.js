@@ -171,6 +171,60 @@
         }
     }
 
+    async function downloadCertificateWithFilename(memberId, certificateType, baseFilename) {
+        const apiConfig = await getMatthewApiConfig();
+        const token = getToken();
+        
+        if (!token) {
+            throw new Error('Authentication token not found');
+        }
+
+        try {
+            const response = await fetch(`${apiConfig.apiUrl}/api/members/${memberId}/certificates/${certificateType}/download`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Accept': 'application/octet-stream',
+                }
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({ message: 'Download failed' }));
+                throw new Error(errorData.message || `Download failed with status ${response.status}`);
+            }
+
+            // Create a blob from the response
+            const blob = await response.blob();
+            
+            // Determine file extension from content type or default to pdf
+            let extension = 'pdf';
+            const contentType = response.headers.get('Content-Type');
+            if (contentType) {
+                if (contentType.includes('pdf')) extension = 'pdf';
+                else if (contentType.includes('jpeg') || contentType.includes('jpg')) extension = 'jpg';
+                else if (contentType.includes('png')) extension = 'png';
+            }
+            
+            const filename = `${baseFilename}.${extension}`;
+            
+            // Create a temporary URL and download link
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+
+            return { success: true, filename };
+
+        } catch (error) {
+            console.error('Certificate download error:', error);
+            throw error;
+        }
+    }
+
     // Export API functions
     window.ParishPortal.API = {
         getMatthewApiConfig,
@@ -184,10 +238,12 @@
         addMember,
         updateMember,
         deleteMember,
+        getMember,
         uploadCertificate,
         getCertificates,
         deleteCertificate,
         downloadCertificate,
+        downloadCertificateWithFilename,
         hasValidToken,
         getToken,
         setToken,
@@ -339,6 +395,14 @@
     async function getMembers() {
         const apiConfig = await getMatthewApiConfig();
         return makeApiRequest(apiConfig.endpoints.members);
+    }
+
+    /**
+     * Get specific member
+     */
+    async function getMember(memberId) {
+        const apiConfig = await getMatthewApiConfig();
+        return makeApiRequest(`/api/members/${memberId}`);
     }
 
     /**

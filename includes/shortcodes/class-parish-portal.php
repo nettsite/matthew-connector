@@ -460,6 +460,9 @@ class ParishPortal {
                             </div>
 
                             <h5>Sacramental Information</h5>
+                            <div id="certificate-upload-notice" class="certificate-notice" style="display: none; background: #f0f8ff; border: 1px solid #b3d9ff; padding: 10px; margin-bottom: 15px; border-radius: 4px; color: #0066cc;">
+                                <p style="margin: 0; font-size: 14px;"><strong>Note:</strong> Please save the member first before uploading certificates.</p>
+                            </div>
                             <div class="sacraments-section">
                                 <div class="form-group">
                                     <label>
@@ -479,7 +482,7 @@ class ParishPortal {
                                         </div>
                                     </div>
                                     <div class="form-row">
-                                        <div class="form-group">
+                                        <div class="form-group certificate-upload-section">
                                             <label for="baptism_certificate">Baptism Certificate</label>
                                             <input type="file" id="baptism_certificate" name="baptism_certificate" 
                                                    accept=".pdf,.jpg,.jpeg,.png" class="certificate-upload">
@@ -515,7 +518,7 @@ class ParishPortal {
                                         </div>
                                     </div>
                                     <div class="form-row">
-                                        <div class="form-group">
+                                        <div class="form-group certificate-upload-section">
                                             <label for="first_communion_certificate">First Communion Certificate</label>
                                             <input type="file" id="first_communion_certificate" name="first_communion_certificate" 
                                                    accept=".pdf,.jpg,.jpeg,.png" class="certificate-upload">
@@ -551,7 +554,7 @@ class ParishPortal {
                                         </div>
                                     </div>
                                     <div class="form-row">
-                                        <div class="form-group">
+                                        <div class="form-group certificate-upload-section">
                                             <label for="confirmation_certificate">Confirmation Certificate</label>
                                             <input type="file" id="confirmation_certificate" name="confirmation_certificate" 
                                                    accept=".pdf,.jpg,.jpeg,.png" class="certificate-upload">
