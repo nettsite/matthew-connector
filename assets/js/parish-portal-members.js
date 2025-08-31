@@ -130,13 +130,6 @@
         if (member) {
             $('#member-form-title').text('Edit Member');
             $('#member_id').val(member.id);
-            $('#member_first_name').val(member.first_name);
-            $('#member_last_name').val(member.last_name);
-            $('#member_email').val(member.email || '');
-            $('#member_phone').val(member.phone || '');
-            $('#member_occupation').val(member.occupation || '');
-            $('#member_skills').val(member.skills || '');
-            $('#member_baptised').prop('checked', member.baptised || false);
             
             // Format dates for HTML date inputs (yyyy-MM-dd)
             const formatDate = (dateString) => {
@@ -144,6 +137,16 @@
                 const date = new Date(dateString);
                 return date.toISOString().split('T')[0];
             };
+            
+            $('#member_first_name').val(member.first_name);
+            $('#member_last_name').val(member.last_name);
+            $('#member_id_number').val(member.id_number || '');
+            $('#member_date_of_birth').val(formatDate(member.date_of_birth));
+            $('#member_email').val(member.email || '');
+            $('#member_phone').val(member.phone || '');
+            $('#member_occupation').val(member.occupation || '');
+            $('#member_skills').val(member.skills || '');
+            $('#member_baptised').prop('checked', member.baptised || false);
             
             $('#baptism_date').val(formatDate(member.baptism_date));
             $('#baptism_parish').val(member.baptism_parish || '');
@@ -189,6 +192,8 @@
         $('#member-form-modal').hide();
         $('#member-form')[0].reset();
         $('#member_id').val('');
+        $('#member_id_number').val('');
+        $('#member_date_of_birth').val('');
         $('#member_occupation').val('');
         $('#member_skills').val('');
         $('#baptism-details').hide();
@@ -233,15 +238,24 @@
         isEditingMember = true;
         currentEditingMemberId = member.id;
         
+        // Format dates for HTML date inputs (yyyy-MM-dd)
+        const formatDate = (dateString) => {
+            if (!dateString) return '';
+            const date = new Date(dateString);
+            return date.toISOString().split('T')[0];
+        };
+        
         $('#member_first_name').val(member.first_name || '');
         $('#member_last_name').val(member.last_name || '');
+        $('#member_id_number').val(member.id_number || '');
+        $('#member_date_of_birth').val(formatDate(member.date_of_birth));
         $('#member_email').val(member.email || '');
         $('#member_phone').val(member.phone || '');
         $('#member_occupation').val(member.occupation || '');
         $('#member_skills').val(member.skills || '');
         
         $('#member_baptised').prop('checked', member.baptised || false);
-        $('#baptism_date').val(member.baptism_date || '');
+        $('#baptism_date').val(formatDate(member.baptism_date));
         $('#baptism_parish').val(member.baptism_parish || '');
         // Show baptism details if baptised
         if (member.baptised) {
@@ -249,7 +263,7 @@
         }
         
         $('#member_first_communion').prop('checked', member.first_communion || false);
-        $('#first_communion_date').val(member.first_communion_date || '');
+        $('#first_communion_date').val(formatDate(member.first_communion_date));
         $('#first_communion_parish').val(member.first_communion_parish || '');
         // Show first communion details if received first communion
         if (member.first_communion) {
@@ -257,7 +271,7 @@
         }
         
         $('#member_confirmed').prop('checked', member.confirmed || false);
-        $('#confirmation_date').val(member.confirmation_date || '');
+        $('#confirmation_date').val(formatDate(member.confirmation_date));
         $('#confirmation_parish').val(member.confirmation_parish || '');
         // Show confirmation details if confirmed
         if (member.confirmed) {
@@ -525,6 +539,8 @@
                 const formData = {
                     first_name: $('#member_first_name').val(),
                     last_name: $('#member_last_name').val(),
+                    id_number: $('#member_id_number').val(),
+                    date_of_birth: $('#member_date_of_birth').val(),
                     email: $('#member_email').val(),
                     phone: $('#member_phone').val(),
                     occupation: $('#member_occupation').val(),

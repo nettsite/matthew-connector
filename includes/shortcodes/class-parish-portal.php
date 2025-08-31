@@ -428,6 +428,17 @@ class ParishPortal {
 
                             <div class="form-row">
                                 <div class="form-group">
+                                    <label for="member_id_number">Identity Number</label>
+                                    <input type="text" id="member_id_number" name="id_number">
+                                </div>
+                                <div class="form-group">
+                                    <label for="member_date_of_birth">Date of Birth</label>
+                                    <input type="date" id="member_date_of_birth" name="date_of_birth">
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
                                     <label for="member_email">Email</label>
                                     <input type="email" id="member_email" name="email">
                                 </div>
