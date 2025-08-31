@@ -221,7 +221,14 @@
         // Clear certificate displays
         ['baptism', 'first_communion', 'confirmation'].forEach(certType => {
             $(`#${certType}_certificate_current`).hide();
-            $(`#${certType}_certificate_filename`).text('');
+            // Reset help text to upload mode
+            const sacramentNames = {
+                'baptism': 'Baptism',
+                'first_communion': 'First Communion',
+                'confirmation': 'Confirmation'
+            };
+            const sacramentName = sacramentNames[certType] || certType;
+            $(`#${certType}_certificate_help`).text(`Upload a ${sacramentName} certificate:`);
         });
     }
 
@@ -244,7 +251,14 @@
         // Clear certificate displays
         ['baptism', 'first_communion', 'confirmation'].forEach(certType => {
             $(`#${certType}_certificate_current`).hide();
-            $(`#${certType}_certificate_filename`).text('');
+            // Reset help text to upload mode
+            const sacramentNames = {
+                'baptism': 'Baptism',
+                'first_communion': 'First Communion',
+                'confirmation': 'Confirmation'
+            };
+            const sacramentName = sacramentNames[certType] || certType;
+            $(`#${certType}_certificate_help`).text(`Upload a ${sacramentName} certificate:`);
         });
     }
 
@@ -895,18 +909,27 @@
      */
     function displayCertificate(certificateType, certificate) {
         const $currentDiv = $(`#${certificateType}_certificate_current`);
-        const $filename = $(`#${certificateType}_certificate_filename`);
+        const $helpText = $(`#${certificateType}_certificate_help`);
+        
+        // Map certificate types to readable names
+        const sacramentNames = {
+            'baptism': 'Baptism',
+            'first_communion': 'First Communion',
+            'confirmation': 'Confirmation'
+        };
+        
+        const sacramentName = sacramentNames[certificateType] || certificateType;
         
         if (certificate && certificate.file_name) {
             // Show the current certificate section
             $currentDiv.show();
-            
-            // Update the filename display
-            $filename.text(certificate.file_name);
-            
+            // Update help text for replacement
+            $helpText.text(`Replace the ${sacramentName} certificate:`);
         } else {
             // Hide the current certificate section
             $currentDiv.hide();
+            // Update help text for upload
+            $helpText.text(`Upload a ${sacramentName} certificate:`);
         }
     }
 

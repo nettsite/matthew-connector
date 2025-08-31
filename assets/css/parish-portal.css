@@ -187,7 +187,7 @@
 .help-text {
     display: block;
     margin-top: 0.25em;
-    font-size: 0.875em;
+    font-size: 0.75em;
     color: #666;
 }
 
@@ -533,23 +533,32 @@ button:disabled,
     background-color: #f8f9fa;
     border: 1px solid #dee2e6;
     border-radius: 4px;
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+    flex-wrap: nowrap;
 }
 
 #matthew-parish-portal .current-certificate p {
-    margin: 0 0 0.5em 0;
+    margin: 0;
     font-weight: 500;
+    font-size: 0.75em;
+    line-height: 1.4;
+    flex-shrink: 0;
+    white-space: nowrap;
 }
 
 #matthew-parish-portal .certificate-actions {
     display: flex;
     gap: 0.5em;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
+    flex-shrink: 0;
 }
 
 #matthew-parish-portal .certificate-actions .button {
     margin: 0 !important;
-    padding: 4px 12px !important;
-    font-size: 12px !important;
+    padding: 4px 0.75em !important;
+    font-size: 0.75em !important;
     line-height: 1.4 !important;
     min-height: auto !important;
 }
@@ -561,4 +570,51 @@ button:disabled,
 
 #matthew-parish-portal .certificate-actions .download-certificate:hover {
     background-color: #005a87 !important;
+}
+
+/* Certificate file input styling to match buttons */
+#matthew-parish-portal .certificate-upload::file-selector-button {
+    background: #007cba;
+    color: white;
+    border: none;
+    padding: 4px 0.75em;
+    border-radius: 4px;
+    cursor: pointer;
+    line-height: 1.4;
+    transition: background 0.2s;
+    margin-right: 0.5em;
+    font-family: inherit;
+}
+
+#matthew-parish-portal .certificate-upload::file-selector-button:hover {
+    background: #005a87;
+}
+
+/* Style the file input container */
+#matthew-parish-portal .certificate-upload {
+    background: transparent;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 0.3em;
+    width: 100%;
+    font-size: 0.75em;
+    color: #666;
+}
+
+/* Make file input text consistent */
+#matthew-parish-portal .certificate-upload::-webkit-file-upload-button {
+    background: #007cba;
+    color: white;
+    border: none;
+    padding: 4px 0.75em;
+    border-radius: 4px;
+    cursor: pointer;
+    line-height: 1.4;
+    transition: background 0.2s;
+    margin-right: 0.5em;
+    font-family: inherit;
+}
+
+#matthew-parish-portal .certificate-upload::-webkit-file-upload-button:hover {
+    background: #005a87;
 }

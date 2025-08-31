@@ -484,11 +484,8 @@ class ParishPortal {
                                     <div class="form-row">
                                         <div class="form-group certificate-upload-section">
                                             <label for="baptism_certificate">Baptism Certificate</label>
-                                            <input type="file" id="baptism_certificate" name="baptism_certificate" 
-                                                   accept=".pdf,.jpg,.jpeg,.png" class="certificate-upload">
-                                            <small class="help-text">Upload certificate (PDF, JPG, or PNG)</small>
                                             <div id="baptism_certificate_current" class="current-certificate" style="display: none;">
-                                                <p>Current certificate: <span id="baptism_certificate_filename"></span></p>
+                                                <p>Current Certificate</p>
                                                 <div class="certificate-actions">
                                                     <button type="button" class="button button-primary download-certificate" 
                                                             data-certificate-type="baptism">Download</button>
@@ -496,6 +493,9 @@ class ParishPortal {
                                                             data-certificate-type="baptism">Remove</button>
                                                 </div>
                                             </div>
+                                            <small class="help-text" id="baptism_certificate_help">Upload a Baptism certificate:</small>
+                                            <input type="file" id="baptism_certificate" name="baptism_certificate" 
+                                                   accept=".pdf,.jpg,.jpeg,.png" class="certificate-upload">
                                         </div>
                                     </div>
                                 </div>
@@ -520,11 +520,8 @@ class ParishPortal {
                                     <div class="form-row">
                                         <div class="form-group certificate-upload-section">
                                             <label for="first_communion_certificate">First Communion Certificate</label>
-                                            <input type="file" id="first_communion_certificate" name="first_communion_certificate" 
-                                                   accept=".pdf,.jpg,.jpeg,.png" class="certificate-upload">
-                                            <small class="help-text">Upload certificate (PDF, JPG, or PNG)</small>
                                             <div id="first_communion_certificate_current" class="current-certificate" style="display: none;">
-                                                <p>Current certificate: <span id="first_communion_certificate_filename"></span></p>
+                                                <p>Current Certificate</p>
                                                 <div class="certificate-actions">
                                                     <button type="button" class="button button-primary download-certificate" 
                                                             data-certificate-type="first_communion">Download</button>
@@ -532,6 +529,9 @@ class ParishPortal {
                                                             data-certificate-type="first_communion">Remove</button>
                                                 </div>
                                             </div>
+                                            <small class="help-text" id="first_communion_certificate_help">Upload a First Communion certificate:</small>
+                                            <input type="file" id="first_communion_certificate" name="first_communion_certificate" 
+                                                   accept=".pdf,.jpg,.jpeg,.png" class="certificate-upload">
                                         </div>
                                     </div>
                                 </div>
@@ -556,11 +556,8 @@ class ParishPortal {
                                     <div class="form-row">
                                         <div class="form-group certificate-upload-section">
                                             <label for="confirmation_certificate">Confirmation Certificate</label>
-                                            <input type="file" id="confirmation_certificate" name="confirmation_certificate" 
-                                                   accept=".pdf,.jpg,.jpeg,.png" class="certificate-upload">
-                                            <small class="help-text">Upload certificate (PDF, JPG, or PNG)</small>
                                             <div id="confirmation_certificate_current" class="current-certificate" style="display: none;">
-                                                <p>Current certificate: <span id="confirmation_certificate_filename"></span></p>
+                                                <p>Current Certificate</p>
                                                 <div class="certificate-actions">
                                                     <button type="button" class="button button-primary download-certificate" 
                                                             data-certificate-type="confirmation">Download</button>
@@ -568,6 +565,9 @@ class ParishPortal {
                                                             data-certificate-type="confirmation">Remove</button>
                                                 </div>
                                             </div>
+                                            <small class="help-text" id="confirmation_certificate_help">Upload a Confirmation certificate:</small>
+                                            <input type="file" id="confirmation_certificate" name="confirmation_certificate" 
+                                                   accept=".pdf,.jpg,.jpeg,.png" class="certificate-upload">
                                         </div>
                                     </div>
                                 </div>
