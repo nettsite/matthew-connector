@@ -122,6 +122,9 @@
         const $modal = $('#member-form-modal');
         console.log('Member form modal found:', $modal.length);
         
+        // Clear any previous messages
+        window.ParishPortal.Utils.clearMessage($('#member-form-message'));
+        
         // Show modal
         $modal.show();
         
@@ -217,7 +220,7 @@
         $('#member-form')[0].reset();
         $('#member-form input[type="submit"]').val('Add Member');
         $('#member-form h3').text('Add Family Member');
-        window.ParishPortal.Utils.clearMessage($('#members-message'));
+        window.ParishPortal.Utils.clearMessage($('#member-form-message'));
         
         // Hide all conditional detail sections
         $('#baptism-details').hide();
@@ -529,7 +532,7 @@
             
             const $form = $(this);
             const $submitButton = $form.find('button[type="submit"], input[type="submit"]');
-            const $message = $('#members-message');
+            const $message = $('#member-form-message');
             
             const loadingText = isEditingMember ? 'Updating...' : 'Adding...';
             window.ParishPortal.Utils.setButtonLoading($submitButton, loadingText);
@@ -599,7 +602,27 @@
                 
             } catch (error) {
                 console.error('Member save error:', error);
-                window.ParishPortal.Utils.displayError($message, error.responseJSON || error);
+                
+                // Extract error message from different response formats
+                let errorMessage = 'An error occurred while saving the member.';
+                
+                if (error.responseJSON) {
+                    // Laravel validation error format
+                    if (error.responseJSON.message) {
+                        errorMessage = error.responseJSON.message;
+                    }
+                    // If there are specific field errors, show the first one
+                    if (error.responseJSON.errors) {
+                        const firstError = Object.values(error.responseJSON.errors)[0];
+                        if (Array.isArray(firstError) && firstError.length > 0) {
+                            errorMessage = firstError[0];
+                        }
+                    }
+                } else if (error.message) {
+                    errorMessage = error.message;
+                }
+                
+                window.ParishPortal.Utils.displayError($message, { message: errorMessage });
             } finally {
                 window.ParishPortal.Utils.resetButton($submitButton);
             }
