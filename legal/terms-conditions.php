@@ -1,0 +1,250 @@
+<?php
+// Load WordPress if not already loaded
+if (!defined('ABSPATH')) {
+    // Find WordPress wp-config.php
+    $config_file = '';
+    for ($i = 0; $i < 5; $i++) {
+        $path = str_repeat('../', $i) . 'wp-config.php';
+        if (file_exists($path)) {
+            $config_file = $path;
+            break;
+        }
+    }
+    
+    if ($config_file) {
+        require_once($config_file);
+    }
+}
+
+// Get parish information from settings
+$parish_name = get_option('matthew_connector_parish_name', 'Our Parish');
+$parish_phone = get_option('matthew_connector_parish_phone', '[Parish Phone Number]');
+$parish_email = get_option('matthew_connector_parish_email', 'admin@parish.org');
+$parish_address = get_option('matthew_connector_parish_address', '[Parish Address]');
+$jurisdiction = get_option('matthew_connector_jurisdiction', '[Your Jurisdiction]');
+
+// Get the current date for effective date
+$effective_date = date('F j, Y');
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terms and Conditions - <?php echo esc_html($parish_name); ?></title>
+    <link rel="stylesheet" href="legal-documents.css">
+</head>
+<body>
+    <div class="container">
+        <header class="document-header">
+            <h1>Terms and Conditions</h1>
+            <p class="effective-date">Effective Date: <?php echo esc_html($effective_date); ?></p>
+        </header>
+
+        <main class="document-content">
+            <section class="intro-section">
+                <h2>1. Acceptance of Terms</h2>
+                <p>By accessing or using the <?php echo esc_html($parish_name); ?> Parish Management System ("System," "Service," "we," "us," or "our"), you agree to be bound by these Terms and Conditions ("Terms"). If you do not agree to these Terms, you may not access or use our Service.</p>
+                <p>These Terms constitute a legally binding agreement between you and <?php echo esc_html($parish_name); ?>.</p>
+            </section>
+
+            <section class="service-description">
+                <h2>2. Service Description</h2>
+                <p><?php echo esc_html($parish_name); ?> Parish Management System is a comprehensive parish management solution that provides:</p>
+                <ul>
+                    <li>Household and member directory management</li>
+                    <li>Sacramental record keeping</li>
+                    <li>API-based authentication and data access</li>
+                    <li>Administrative tools for parish staff</li>
+                    <li>Secure data storage and management</li>
+                </ul>
+                <p>We reserve the right to modify, suspend, or discontinue any aspect of the Service at any time with reasonable notice.</p>
+            </section>
+
+            <section class="user-accounts">
+                <h2>3. User Accounts and Registration</h2>
+                
+                <h3>3.1 Account Creation</h3>
+                <p>To access certain features of the System, you must create a household account. You agree to:</p>
+                <ul>
+                    <li>Provide accurate, current, and complete information during registration</li>
+                    <li>Maintain and promptly update your account information</li>
+                    <li>Keep your login credentials secure and confidential</li>
+                    <li>Notify us immediately of any unauthorized use of your account</li>
+                </ul>
+
+                <h3>3.2 Account Responsibility</h3>
+                <p>You are responsible for all activities that occur under your account. We are not liable for any loss or damage arising from unauthorized use of your account.</p>
+
+                <h3>3.3 Eligibility</h3>
+                <p>You must be at least 18 years old or have parental/guardian consent to use this Service. By using the Service, you represent that you meet these eligibility requirements.</p>
+            </section>
+
+            <section class="acceptable-use">
+                <h2>4. Acceptable Use Policy</h2>
+                
+                <h3>4.1 Permitted Use</h3>
+                <p>You may use the Service only for legitimate parish-related activities and in accordance with these Terms.</p>
+
+                <h3>4.2 Prohibited Activities</h3>
+                <p>You agree not to:</p>
+                <ul>
+                    <li>Use the Service for any unlawful purpose or in violation of any laws</li>
+                    <li>Access or attempt to access accounts or data belonging to others</li>
+                    <li>Interfere with or disrupt the Service or servers connected to it</li>
+                    <li>Attempt to gain unauthorized access to any part of the Service</li>
+                    <li>Use automated systems to access the Service without permission</li>
+                    <li>Upload or transmit malicious code or harmful content</li>
+                    <li>Harass, abuse, or harm other users of the Service</li>
+                    <li>Use the Service to distribute spam or unsolicited communications</li>
+                    <li>Violate the privacy or rights of others</li>
+                    <li>Reverse engineer, decompile, or disassemble any part of the Service</li>
+                </ul>
+            </section>
+
+            <section class="data-obligations">
+                <h2>5. Data and Privacy</h2>
+                <p>Your use of the Service is also governed by our Privacy Policy, which is incorporated by reference into these Terms. By using the Service, you consent to the collection, use, and sharing of your information as described in our Privacy Policy.</p>
+                
+                <h3>5.1 Data Accuracy</h3>
+                <p>You are responsible for ensuring the accuracy of all information you provide to the System.</p>
+
+                <h3>5.2 Data Security</h3>
+                <p>While we implement security measures to protect your data, you acknowledge that no system is completely secure, and you use the Service at your own risk.</p>
+            </section>
+
+            <section class="intellectual-property">
+                <h2>6. Intellectual Property Rights</h2>
+                
+                <h3>6.1 Our Rights</h3>
+                <p>The Service and its original content, features, and functionality are owned by <?php echo esc_html($parish_name); ?> and are protected by international copyright, trademark, patent, trade secret, and other intellectual property laws.</p>
+
+                <h3>6.2 License to Use</h3>
+                <p>We grant you a limited, non-exclusive, non-transferable, revocable license to access and use the Service for its intended purpose.</p>
+
+                <h3>6.3 User Content</h3>
+                <p>You retain ownership of any content you submit to the Service. However, you grant us a license to use, store, and process your content as necessary to provide the Service.</p>
+            </section>
+
+            <section class="api-terms">
+                <h2>7. API Usage</h2>
+                
+                <h3>7.1 API Access</h3>
+                <p>Access to our API is provided under these Terms and additional API-specific conditions. API access may be subject to rate limits and usage restrictions.</p>
+
+                <h3>7.2 API Keys and Tokens</h3>
+                <p>You are responsible for maintaining the security of your API keys and access tokens. Do not share these credentials with unauthorized parties.</p>
+
+                <h3>7.3 API Limitations</h3>
+                <p>We may impose limits on API usage, including rate limits, data access restrictions, and feature limitations. We reserve the right to modify these limits with reasonable notice.</p>
+            </section>
+
+            <section class="service-availability">
+                <h2>8. Service Availability and Modifications</h2>
+                
+                <h3>8.1 Availability</h3>
+                <p>We strive to maintain high availability of the Service but do not guarantee uninterrupted access. The Service may be temporarily unavailable due to maintenance, updates, or technical issues.</p>
+
+                <h3>8.2 Modifications</h3>
+                <p>We reserve the right to modify, update, or discontinue any aspect of the Service with reasonable notice to users.</p>
+            </section>
+
+            <section class="disclaimers">
+                <h2>9. Disclaimers</h2>
+                <p>THE SERVICE IS PROVIDED "AS IS" AND "AS AVAILABLE" WITHOUT WARRANTIES OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT.</p>
+                <p>We do not warrant that:</p>
+                <ul>
+                    <li>The Service will meet your specific requirements</li>
+                    <li>The Service will be uninterrupted, timely, secure, or error-free</li>
+                    <li>Any errors in the Service will be corrected</li>
+                    <li>The results obtained from the Service will be accurate or reliable</li>
+                </ul>
+            </section>
+
+            <section class="liability">
+                <h2>10. Limitation of Liability</h2>
+                <p>TO THE MAXIMUM EXTENT PERMITTED BY LAW, IN NO EVENT SHALL WE BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, INCLUDING BUT NOT LIMITED TO LOSS OF PROFITS, DATA, USE, OR GOODWILL, ARISING FROM OR RELATING TO YOUR USE OF THE SERVICE.</p>
+                <p>OUR TOTAL LIABILITY TO YOU FOR ALL CLAIMS ARISING FROM OR RELATING TO THE SERVICE SHALL NOT EXCEED THE AMOUNT YOU PAID TO US FOR THE SERVICE IN THE 12 MONTHS PRECEDING THE CLAIM.</p>
+            </section>
+
+            <section class="indemnification">
+                <h2>11. Indemnification</h2>
+                <p>You agree to indemnify, defend, and hold harmless <?php echo esc_html($parish_name); ?>, its officers, directors, employees, and agents from and against any and all claims, damages, obligations, losses, liabilities, costs, or debt, and expenses (including attorney's fees) arising from:</p>
+                <ul>
+                    <li>Your use of the Service</li>
+                    <li>Your violation of these Terms</li>
+                    <li>Your violation of any third-party rights</li>
+                    <li>Any content you submit to the Service</li>
+                </ul>
+            </section>
+
+            <section class="termination">
+                <h2>12. Termination</h2>
+                
+                <h3>12.1 Termination by You</h3>
+                <p>You may terminate your account at any time by contacting us or using the account deletion features in the Service.</p>
+
+                <h3>12.2 Termination by Us</h3>
+                <p>We may terminate or suspend your access to the Service immediately, without prior notice, if:</p>
+                <ul>
+                    <li>You breach these Terms</li>
+                    <li>Your use of the Service poses a security risk</li>
+                    <li>You engage in prohibited activities</li>
+                    <li>Required by law or regulatory requirements</li>
+                </ul>
+
+                <h3>12.3 Effect of Termination</h3>
+                <p>Upon termination, your right to use the Service will cease immediately. We may retain certain information as required by law or for legitimate business purposes.</p>
+            </section>
+
+            <section class="dispute-resolution">
+                <h2>13. Dispute Resolution</h2>
+                
+                <h3>13.1 Informal Resolution</h3>
+                <p>Before initiating formal proceedings, you agree to attempt to resolve any dispute through good-faith negotiations by contacting us directly.</p>
+
+                <h3>13.2 Governing Law</h3>
+                <p>These Terms are governed by the laws of <?php echo esc_html($jurisdiction); ?>, without regard to conflict of law principles.</p>
+
+                <h3>13.3 Jurisdiction</h3>
+                <p>Any legal action or proceeding arising from these Terms shall be brought exclusively in the courts of <?php echo esc_html($jurisdiction); ?>.</p>
+            </section>
+
+            <section class="general-provisions">
+                <h2>14. General Provisions</h2>
+                
+                <h3>14.1 Entire Agreement</h3>
+                <p>These Terms, together with our Privacy Policy, constitute the entire agreement between you and us regarding the Service.</p>
+
+                <h3>14.2 Amendments</h3>
+                <p>We may modify these Terms at any time by posting updated terms. Your continued use of the Service after changes constitutes acceptance of the new Terms.</p>
+
+                <h3>14.3 Severability</h3>
+                <p>If any provision of these Terms is found to be unenforceable, the remaining provisions will remain in full force and effect.</p>
+
+                <h3>14.4 Waiver</h3>
+                <p>Our failure to enforce any provision of these Terms does not constitute a waiver of that provision.</p>
+
+                <h3>14.5 Assignment</h3>
+                <p>You may not assign your rights under these Terms without our prior written consent. We may assign these Terms without restriction.</p>
+            </section>
+
+            <section class="contact">
+                <h2>15. Contact Information</h2>
+                <p>If you have questions about these Terms, please contact:</p>
+                <div class="contact-info">
+                    <p><strong><?php echo esc_html($parish_name); ?></strong><br>
+                    <strong>Parish Administration</strong><br>
+                    Email: <a href="mailto:<?php echo esc_attr($parish_email); ?>"><?php echo esc_html($parish_email); ?></a><br>
+                    <?php if ($parish_phone): ?>Phone: <?php echo esc_html($parish_phone); ?><br><?php endif; ?>
+                    <?php if ($parish_address): ?>Address: <?php echo nl2br(esc_html($parish_address)); ?><?php endif; ?></p>
+                </div>
+            </section>
+        </main>
+
+        <footer class="document-footer">
+            <p class="last-updated">Last updated: <?php echo esc_html($effective_date); ?></p>
+        </footer>
+    </div>
+</body>
+</html>

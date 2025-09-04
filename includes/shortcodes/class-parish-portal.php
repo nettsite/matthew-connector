@@ -430,7 +430,7 @@ class ParishPortal {
                             <label class="terms-acceptance">
                                 <input type="checkbox" id="terms_accepted" name="terms_accepted" required>
                                 <span class="terms-text">
-                                    I agree to the <a href="<?php echo esc_url(plugin_dir_url(dirname(__DIR__)) . 'legal/terms-conditions.html'); ?>" target="_blank" rel="noopener">Terms & Conditions</a><span class="and-separator">and</span><a href="<?php echo esc_url(plugin_dir_url(dirname(__DIR__)) . 'legal/privacy-policy.html'); ?>" target="_blank" rel="noopener">Privacy Policy</a>
+                                    I agree to the <a href="<?php echo esc_url(plugin_dir_url(dirname(__DIR__)) . 'legal/terms-conditions.php'); ?>" target="_blank" rel="noopener">Terms & Conditions</a><span class="and-separator">and</span><a href="<?php echo esc_url(plugin_dir_url(dirname(__DIR__)) . 'legal/privacy-policy.php'); ?>" target="_blank" rel="noopener">Privacy Policy</a>
                                 </span>
                             </label>
                         </div>
@@ -493,7 +493,7 @@ class ParishPortal {
                             <label class="terms-acceptance">
                                 <input type="checkbox" id="household_terms_accepted" name="terms_accepted" required>
                                 <span class="terms-text">
-                                    I agree to the <a href="<?php echo esc_url(plugin_dir_url(dirname(__DIR__)) . 'legal/terms-conditions.html'); ?>" target="_blank" rel="noopener">Terms & Conditions</a><span class="and-separator">and</span><a href="<?php echo esc_url(plugin_dir_url(dirname(__DIR__)) . 'legal/privacy-policy.html'); ?>" target="_blank" rel="noopener">Privacy Policy</a>
+                                    I agree to the <a href="<?php echo esc_url(plugin_dir_url(dirname(__DIR__)) . 'legal/terms-conditions.php'); ?>" target="_blank" rel="noopener">Terms & Conditions</a><span class="and-separator">and</span><a href="<?php echo esc_url(plugin_dir_url(dirname(__DIR__)) . 'legal/privacy-policy.php'); ?>" target="_blank" rel="noopener">Privacy Policy</a>
                                 </span>
                             </label>
                         </div>
