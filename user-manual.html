@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matthew Connector Plugin - User Manual</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f8f9fa;o OI imnstall Claude coDE
+        }
+        
+        .manual-container {
+            background-color: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #2c3e50;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+            margin-bottom: 30px;
+        }
+        
+        h2 {
+            color: #34495e;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            border-left: 4px solid #3498db;
+            padding-left: 15px;
+        }
+        
+        h3 {
+            color: #2c3e50;
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
+        
+        h4 {
+            color: #34495e;
+            margin-top: 25px;
+            margin-bottom: 10px;
+        }
+        
+        .toc {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .toc h2 {
+            margin-top: 0;
+            border-left: none;
+            padding-left: 0;
+        }
+        
+        .toc ol {
+            margin: 0;
+            padding-left: 20px;
+        }
+        
+        .toc a {
+            color: #3498db;
+            text-decoration: none;
+        }
+        
+        .toc a:hover {
+            text-decoration: underline;
+        }
+        
+        .alert {
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+            border-left: 4px solid;
+        }
+        
+        .alert-warning {
+            background-color: #fff3cd;
+            border-color: #f0ad4e;
+            color: #856404;
+        }
+        
+        .alert-info {
+            background-color: #d1ecf1;
+            border-color: #bee5eb;
+            color: #0c5460;
+        }
+        
+        .tips {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .tips h4 {
+            margin-top: 0;
+            color: #155724;
+        }
+        
+        ul.checklist {
+            list-style: none;
+            padding-left: 0;
+        }
+        
+        ul.checklist li {
+            margin: 8px 0;
+            padding-left: 25px;
+            position: relative;
+        }
+        
+        ul.checklist li:before {
+            content: "✅";
+            position: absolute;
+            left: 0;
+        }
+        
+        ul.practices li:before {
+            content: "📝";
+        }
+        
+        ul.certificate li:before {
+            content: "📄";
+        }
+        
+        ul.security li:before {
+            content: "🔒";
+        }
+        
+        ul.tasks li:before {
+            content: "✏️";
+        }
+        
+        ul.remember li:before {
+            content: "💾";
+        }
+        
+        ol {
+            padding-left: 20px;
+        }
+        
+        li {
+            margin: 8px 0;
+        }
+        
+        strong {
+            color: #2c3e50;
+        }
+        
+        code {
+            background-color: #f1f2f6;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-family: Monaco, Consolas, monospace;
+            font-size: 0.9em;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        th, td {
+            border: 1px solid #dee2e6;
+            padding: 12px;
+            text-align: left;
+        }
+        
+        th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        
+        .divider {
+            border: none;
+            height: 3px;
+            background: linear-gradient(to right, #3498db, #2ecc71);
+            margin: 40px 0;
+            border-radius: 2px;
+        }
+        
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #dee2e6;
+            font-style: italic;
+            color: #6c757d;
+            text-align: center;
+        }
+        
+        @media (max-width: 768px) {
+            .manual-container {
+                padding: 20px;
+            }
+            
+            body {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="manual-container">
+        <h1>Matthew Connector Plugin - User Manual</h1>
+
+        <div class="toc">
+            <h2>Table of Contents</h2>
+            <ol>
+                <li><a href="#overview">Overview</a></li>
+                <li><a href="#getting-started">Getting Started</a></li>
+                <li><a href="#registration">Registration</a></li>
+                <li><a href="#logging-in">Logging In</a></li>
+                <li><a href="#managing-your-household">Managing Your Household</a></li>
+                <li><a href="#adding-new-members">Adding New Members</a></li>
+                <li><a href="#updating-existing-members">Updating Existing Members</a></li>
+                <li><a href="#certificate-management">Certificate Management</a></li>
+                <li><a href="#troubleshooting">Troubleshooting</a></li>
+                <li><a href="#support">Support</a></li>
+            </ol>
+        </div>
+
+        <hr class="divider">
+
+        <h2 id="overview">Overview</h2>
+
+        <p>The Matthew Connector Plugin allows parish members to register their households and manage family member information through a secure web portal. The system integrates with your parish's Laravel-based Matthew application to maintain accurate records of parishioners and their sacramental history.</p>
+
+        <h3>Key Features</h3>
+
+        <ul>
+            <li><strong>Household Registration</strong>: Create and manage household accounts</li>
+            <li><strong>Member Management</strong>: Add, edit, and remove family members</li>
+            <li><strong>Sacramental Records</strong>: Track baptism, first communion, and confirmation details</li>
+            <li><strong>Certificate Upload</strong>: Upload and manage sacramental certificates</li>
+            <li><strong>Secure Access</strong>: Token-based authentication for data protection</li>
+        </ul>
+
+        <hr class="divider">
+
+        <h2 id="getting-started">Getting Started</h2>
+
+        <p>The plugin provides a user-friendly interface accessible through a shortcode on your parish website. Look for the parish portal section on your parish's website to begin using the system.</p>
+
+        <h3>System Requirements</h3>
+
+        <ul>
+            <li>Modern web browser (Chrome, Firefox, Safari, Edge)</li>
+            <li>Internet connection</li>
+            <li>JavaScript enabled</li>
+        </ul>
+
+        <hr class="divider">
+
+        <h2 id="registration">Registration</h2>
+
+        <h3>Creating Your Household Account</h3>
+
+        <ol>
+            <li><strong>Navigate to the Parish Portal</strong> on your parish website</li>
+            <li><strong>Click on the Registration tab</strong> in the login area</li>
+            <li><strong>Fill in the required household information</strong>:
+                <ul>
+                    <li><strong>Household Name</strong>: Enter your family name (e.g., "The Smith Family")</li>
+                    <li><strong>Primary Contact Email</strong>: Use an email address you check regularly</li>
+                    <li><strong>Phone Number</strong>: Your primary contact number</li>
+                    <li><strong>Address</strong>: Your complete mailing address</li>
+                </ul>
+            </li>
+            <li><strong>Create a secure password</strong>:
+                <ul>
+                    <li>Use a combination of letters, numbers, and symbols</li>
+                    <li>Make it at least 8 characters long</li>
+                    <li>Don't use easily guessed information</li>
+                </ul>
+            </li>
+            <li><strong>Click "Register Household"</strong></li>
+            <li><strong>Check your email</strong> for a confirmation message</li>
+        </ol>
+
+        <div class="tips">
+            <h4>Registration Tips</h4>
+            <ul class="checklist">
+                <li>Use a valid email address - this will be your login username</li>
+                <li>Choose a strong password you'll remember</li>
+                <li>Double-check your contact information for accuracy</li>
+                <li>Keep your login credentials secure</li>
+            </ul>
+        </div>
+
+        <hr class="divider">
+
+        <h2 id="logging-in">Logging In</h2>
+
+        <h3>Accessing Your Account</h3>
+
+        <ol>
+            <li><strong>Go to the Parish Portal</strong> on your parish website</li>
+            <li><strong>Enter your credentials</strong>:
+                <ul>
+                    <li><strong>Email</strong>: The email address you used during registration</li>
+                    <li><strong>Password</strong>: Your chosen password</li>
+                </ul>
+            </li>
+            <li><strong>Click "Login"</strong></li>
+            <li><strong>Wait for the system to authenticate</strong> and load your household management dashboard</li>
+        </ol>
+
+        <h3>If You Forget Your Password</h3>
+
+        <p>Currently, password reset functionality requires contacting parish administration. Please reach out to your parish office with your registered email address for assistance.</p>
+
+        <hr class="divider">
+
+        <h2 id="managing-your-household">Managing Your Household</h2>
+
+        <h3>Household Information Tab</h3>
+
+        <p>Once logged in, you'll see tabs for managing different aspects of your household:</p>
+
+        <h4>Updating Household Details</h4>
+
+        <ol>
+            <li><strong>Click on the "Household" tab</strong></li>
+            <li><strong>Review and update information</strong> as needed:
+                <ul>
+                    <li>Household name</li>
+                    <li>Contact email</li>
+                    <li>Phone number</li>
+                    <li>Mailing address</li>
+                </ul>
+            </li>
+            <li><strong>Click "Update Household"</strong> to save changes</li>
+            <li><strong>Confirmation message</strong> will appear when changes are saved</li>
+        </ol>
+
+        <div class="tips">
+            <h4>Best Practices</h4>
+            <ul class="practices">
+                <li>Keep contact information current for parish communications</li>
+                <li>Update address changes promptly</li>
+                <li>Ensure phone numbers are accurate for emergency contact</li>
+            </ul>
+        </div>
+
+        <hr class="divider">
+
+        <h2 id="adding-new-members">Adding New Members</h2>
+
+        <h3>Members Tab</h3>
+
+        <p>The Members tab allows you to add and manage all household members.</p>
+
+        <h4>Adding a New Family Member</h4>
+
+        <ol>
+            <li><strong>Click on the "Members" tab</strong></li>
+            <li><strong>Click "Add Member" button</strong></li>
+            <li><strong>Fill in the member's basic information</strong>:
+                <ul>
+                    <li><strong>First Name</strong>: Member's given name</li>
+                    <li><strong>Last Name</strong>: Member's family name</li>
+                    <li><strong>ID Number</strong>: Any official identification number (optional)</li>
+                    <li><strong>Date of Birth</strong>: Use the date picker to select</li>
+                    <li><strong>Email</strong>: Member's personal email (if applicable)</li>
+                    <li><strong>Phone</strong>: Member's personal phone number (if applicable)</li>
+                    <li><strong>Occupation</strong>: Current job or role (optional)</li>
+                    <li><strong>Skills</strong>: Special skills or talents (optional)</li>
+                </ul>
+            </li>
+        </ol>
+
+        <h4>Sacramental Information</h4>
+
+        <ol start="4">
+            <li><strong>Check appropriate sacrament boxes</strong> and fill in details:
+
+                <p><strong>Baptism</strong></p>
+                <ul>
+                    <li>☑ Check "Baptised" if applicable</li>
+                    <li><strong>Date</strong>: When the baptism occurred</li>
+                    <li><strong>Parish</strong>: Where the baptism took place</li>
+                </ul>
+
+                <p><strong>First Communion</strong></p>
+                <ul>
+                    <li>☑ Check "First Communion" if applicable</li>
+                    <li><strong>Date</strong>: When first communion was received</li>
+                    <li><strong>Parish</strong>: Where it took place</li>
+                </ul>
+
+                <p><strong>Confirmation</strong></p>
+                <ul>
+                    <li>☑ Check "Confirmed" if applicable</li>
+                    <li><strong>Date</strong>: When confirmation was received</li>
+                    <li><strong>Parish</strong>: Where it took place</li>
+                </ul>
+            </li>
+            <li><strong>Click "Save Member"</strong> to create the member record</li>
+        </ol>
+
+        <div class="alert alert-warning">
+            <h4>⚠️ Important Certificate Upload Note</h4>
+            <p><strong>You must save the member first before uploading certificates.</strong> When adding a new member:</p>
+            <ul>
+                <li>Certificate upload fields are hidden initially</li>
+                <li>A notice displays: "Please save the member first before uploading certificates"</li>
+                <li>After saving, certificate upload options become available</li>
+                <li>You can then edit the member to upload certificates</li>
+            </ul>
+        </div>
+
+        <hr class="divider">
+
+        <h2 id="updating-existing-members">Updating Existing Members</h2>
+
+        <h3>Editing Member Information</h3>
+
+        <ol>
+            <li><strong>In the Members tab</strong>, find the member you want to update</li>
+            <li><strong>Click "Edit" button</strong> next to their name</li>
+            <li><strong>Modify any information</strong> as needed</li>
+            <li><strong>Update sacramental information</strong> if necessary</li>
+            <li><strong>Upload or manage certificates</strong> (see Certificate Management section)</li>
+            <li><strong>Click "Save Member"</strong> to apply changes</li>
+        </ol>
+
+        <div class="tips">
+            <h4>When to Update Member Records</h4>
+            <ul class="tasks">
+                <li>Contact information changes</li>
+                <li>Sacraments received</li>
+                <li>Address updates</li>
+                <li>New certificates obtained</li>
+            </ul>
+        </div>
+
+        <hr class="divider">
+
+        <h2 id="certificate-management">Certificate Management</h2>
+
+        <h3>Understanding Certificate Status</h3>
+
+        <p>For each sacrament, you'll see different displays based on certificate status:</p>
+
+        <h4>When No Certificate Exists</h4>
+        <ul>
+            <li><strong>Help text</strong>: "Upload a [Sacrament] certificate:"</li>
+            <li><strong>File input</strong>: Choose file button available</li>
+            <li><strong>Status</strong>: No current certificate display</li>
+        </ul>
+
+        <h4>When Certificate Exists</h4>
+        <ul>
+            <li><strong>Current Certificate</strong>: Shows "Current Certificate" with Download and Remove buttons</li>
+            <li><strong>Help text</strong>: "Replace the [Sacrament] certificate:"</li>
+            <li><strong>File input</strong>: Choose file button for replacement</li>
+        </ul>
+
+        <h3>Uploading Certificates</h3>
+
+        <ol>
+            <li><strong>Ensure the member is saved</strong> (required for new members)</li>
+            <li><strong>Click "Choose file"</strong> under the appropriate sacrament</li>
+            <li><strong>Select your certificate file</strong>:
+                <ul>
+                    <li><strong>Supported formats</strong>: PDF, JPG, JPEG, PNG</li>
+                    <li><strong>Recommended</strong>: PDF for best quality and compatibility</li>
+                </ul>
+            </li>
+            <li><strong>File uploads automatically</strong> when selected</li>
+            <li><strong>Success message</strong> confirms upload completion</li>
+        </ol>
+
+        <h3>Managing Existing Certificates</h3>
+
+        <h4>Downloading Certificates</h4>
+        <ul>
+            <li><strong>Click "Download"</strong> next to "Current Certificate"</li>
+            <li><strong>File saves</strong> with format: "[Member Name] [Sacrament] Certificate.[extension]"</li>
+            <li><strong>Example</strong>: "John Smith Baptism Certificate.pdf"</li>
+        </ul>
+
+        <h4>Replacing Certificates</h4>
+        <ul>
+            <li><strong>Click "Choose file"</strong> to select a new certificate</li>
+            <li><strong>New file replaces</strong> the existing certificate</li>
+            <li><strong>Previous certificate</strong> is permanently removed</li>
+        </ul>
+
+        <h4>Removing Certificates</h4>
+        <ul>
+            <li><strong>Click "Remove"</strong> next to "Current Certificate"</li>
+            <li><strong>Confirm deletion</strong> when prompted</li>
+            <li><strong>Certificate is permanently deleted</strong> from the system</li>
+        </ul>
+
+        <div class="tips">
+            <h4>Certificate Best Practices</h4>
+            <ul class="certificate">
+                <li>Use PDF format when possible for best quality</li>
+                <li>Ensure certificates are clearly readable</li>
+                <li>Keep original physical certificates safe</li>
+                <li>Upload high-resolution scans or photos</li>
+                <li>Remove personal information not relevant to the sacrament if privacy is a concern</li>
+            </ul>
+        </div>
+
+        <hr class="divider">
+
+        <h2 id="troubleshooting">Troubleshooting</h2>
+
+        <h3>Common Issues and Solutions</h3>
+
+        <h4>Login Problems</h4>
+        <p><strong>Issue</strong>: Can't log in with correct credentials</p>
+        <ul>
+            <li><strong>Solution</strong>: Ensure caps lock is off, try typing password manually</li>
+            <li><strong>Contact</strong>: Parish office if problems persist</li>
+        </ul>
+
+        <h4>Upload Failures</h4>
+        <p><strong>Issue</strong>: Certificate won't upload</p>
+        <ul>
+            <li><strong>Check</strong>: File format (PDF, JPG, JPEG, PNG only)</li>
+            <li><strong>Check</strong>: File size (contact parish for size limits)</li>
+            <li><strong>Try</strong>: Different browser or device</li>
+        </ul>
+
+        <h4>Missing Information</h4>
+        <p><strong>Issue</strong>: Previously entered information is gone</p>
+        <ul>
+            <li><strong>Solution</strong>: Information is saved automatically, try refreshing the page</li>
+            <li><strong>Contact</strong>: Parish office if data loss persists</li>
+        </ul>
+
+        <h4>Certificate Upload Notice</h4>
+        <p><strong>Issue</strong>: "Please save the member first" message appears</p>
+        <ul>
+            <li><strong>Solution</strong>: This is normal for new members - save the member first, then edit to upload certificates</li>
+        </ul>
+
+        <h3>Browser Compatibility</h3>
+
+        <p>The system works best with modern browsers:</p>
+        <ul class="checklist">
+            <li>Chrome (recommended)</li>
+            <li>Firefox</li>
+            <li>Safari</li>
+            <li>Microsoft Edge</li>
+        </ul>
+        <p>⚠️ Internet Explorer may have limited functionality</p>
+
+        <hr class="divider">
+
+        <h2 id="support">Support</h2>
+
+        <h3>Getting Help</h3>
+
+        <h4>Parish Office Contact</h4>
+        <p>For technical issues, account problems, or questions about your records:</p>
+        <ul>
+            <li><strong>Contact your parish office directly</strong></li>
+            <li><strong>Provide your registered email address</strong></li>
+            <li><strong>Describe the specific issue you're experiencing</strong></li>
+        </ul>
+
+        <h4>Data Privacy</h4>
+        <p>Your household and member information is:</p>
+        <ul class="security">
+            <li>Securely stored and encrypted</li>
+            <li>Only accessible by authorized parish staff</li>
+            <li>Used solely for parish administration and communication</li>
+            <li>Never shared with unauthorized third parties</li>
+        </ul>
+
+        <h4>System Updates</h4>
+        <ul>
+            <li>The system may occasionally be updated with new features</li>
+            <li>Your data remains safe during updates</li>
+            <li>New features will be announced by your parish</li>
+        </ul>
+
+        <hr class="divider">
+
+        <h2>Quick Reference</h2>
+
+        <h3>Common Tasks</h3>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Task</th>
+                    <th>Steps</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Register</strong></td>
+                    <td>Registration tab → Fill form → Register Household</td>
+                </tr>
+                <tr>
+                    <td><strong>Login</strong></td>
+                    <td>Enter email/password → Login</td>
+                </tr>
+                <tr>
+                    <td><strong>Add Member</strong></td>
+                    <td>Members tab → Add Member → Fill form → Save</td>
+                </tr>
+                <tr>
+                    <td><strong>Upload Certificate</strong></td>
+                    <td>Edit member → Choose file → Upload automatically</td>
+                </tr>
+                <tr>
+                    <td><strong>Download Certificate</strong></td>
+                    <td>Find member → Current Certificate → Download</td>
+                </tr>
+                <tr>
+                    <td><strong>Update Info</strong></td>
+                    <td>Edit member → Modify fields → Save</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>File Types Supported</h3>
+        <ul>
+            <li><strong>PDF</strong> (recommended)</li>
+            <li><strong>JPG/JPEG</strong></li>
+            <li><strong>PNG</strong></li>
+        </ul>
+
+        <div class="tips">
+            <h4>Remember</h4>
+            <ul class="remember">
+                <li>Save new members before uploading certificates</li>
+                <li>Information saves automatically when you click Save</li>
+                <li>System works on mobile devices</li>
+                <li>Keep your login credentials secure</li>
+            </ul>
+        </div>
+
+        <div class="footer">
+            <p><em>This user manual is for the Matthew Connector Plugin. For technical support or questions about your parish records, please contact your parish office.</em></p>
+        </div>
+    </div>
+</body>
+</html>

@@ -58,7 +58,10 @@ class Matthew_API_Client {
             'url' => $url,
             'method' => $method,
             'headers' => array_diff_key($args['headers'], ['Authorization' => true]), // Don't log token
-            'data' => $data ? array_diff_key($data, ['password' => true]) : null // Don't log passwords
+            'data' => $data ? array_diff_key($data, ['password' => true]) : null, // Don't log passwords
+            'full_data_keys' => $data ? array_keys($data) : null, // Log all field names
+            'terms_accepted_present' => isset($data['terms_accepted']),
+            'terms_accepted_value' => $data['terms_accepted'] ?? 'NOT_SET'
         ]);
 
         $response = wp_remote_request($url, $args);

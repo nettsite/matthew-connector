@@ -80,15 +80,50 @@ class ParishPortal {
         ob_start();
         ?>
         <style>
+        /* CSS Reset for Matthew Portal */
+        .matthew-portal-container * {
+            box-sizing: border-box;
+        }
+        
+        .matthew-portal-container .auth-section {
+            clear: both;
+            width: 100%;
+            display: block;
+        }
+        
+        .auth-content-wrapper {
+            max-width: 500px;
+            margin: 0 auto;
+            width: 100%;
+            padding: 0;
+            border: none;
+            background: none;
+        }
+        
+        @media (max-width: 768px) {
+            .auth-content-wrapper {
+                max-width: none;
+                margin: 0;
+                padding: 0 10px;
+            }
+        }
+        
         /* Auth Tab styles */
         .auth-header {
-            text-align: center;
+            text-align: left;
             margin-bottom: 30px;
+            clear: both;
+            overflow: hidden;
+            width: 100%;
+            display: block;
         }
         
         .auth-header h2 {
             margin: 0 0 15px 0;
             color: #333;
+            width: 100%;
+            display: block;
+            float: none;
         }
         
         .auth-instructions {
@@ -96,16 +131,21 @@ class ParishPortal {
             font-size: 14px;
             line-height: 1.5;
             margin: 0;
+            width: 100%;
+            display: block;
+            float: none;
         }
         
         .auth-tabs {
-            display: flex;
-            margin-bottom: 30px;
+            display: flex !important;
+            margin: 10px 0 20px 0;
             border-bottom: 2px solid #e0e0e0;
+            clear: both;
+            width: auto;
+            float: none;
         }
         
         .auth-tab-button {
-            flex: 1;
             padding: 12px 20px;
             background: none;
             border: none;
@@ -115,6 +155,7 @@ class ParishPortal {
             color: #666;
             border-bottom: 3px solid transparent;
             transition: all 0.3s ease;
+            min-width: 120px;
         }
         
         .auth-tab-button:hover {
@@ -259,22 +300,75 @@ class ParishPortal {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+        
+        /* Terms acceptance styling */
+        .matthew-portal-container .terms-acceptance {
+            display: flex !important;
+            align-items: flex-start !important;
+            font-size: 14px !important;
+            line-height: 1.5 !important;
+            margin: 0 !important;
+            padding: 10px 0 !important;
+            color: #333 !important;
+            font-weight: normal !important;
+            cursor: pointer !important;
+        }
+        
+        .matthew-portal-container .terms-acceptance input[type="checkbox"] {
+            margin: 3px 10px 0 0 !important;
+            flex-shrink: 0 !important;
+            cursor: pointer !important;
+            width: 16px !important;
+            height: 16px !important;
+        }
+        
+        .matthew-portal-container .terms-acceptance .terms-text {
+            flex: 1 !important;
+            line-height: 1.5 !important;
+        }
+        
+        .matthew-portal-container .terms-acceptance a {
+            color: #0073aa !important;
+            text-decoration: none !important;
+            font-weight: 500 !important;
+            border-bottom: 1px solid transparent !important;
+            transition: all 0.2s ease !important;
+        }
+        
+        .matthew-portal-container .terms-acceptance a:hover {
+            color: #005177 !important;
+            border-bottom-color: #005177 !important;
+        }
+        
+        .matthew-portal-container .terms-acceptance a:focus {
+            outline: 2px solid #0073aa !important;
+            outline-offset: 2px !important;
+        }
+        
+        /* Add spacing around "and" */
+        .matthew-portal-container .terms-acceptance .and-separator {
+            margin: 0 4px !important;
+        }
         </style>
         
         <div id="matthew-parish-portal" class="matthew-portal-container">
             <!-- Login/Registration Forms (shown when not authenticated) -->
             <div id="auth-forms" class="auth-section">
                 <div class="auth-header">
+                    <h2>Instructions</h2>
                     <p class="auth-instructions">
-                        <strong>New to our parish?</strong> Register your household to get started.<br>
-                        <strong>Already registered?</strong> Login with your email and password.
+                        <ul>
+                            <li>If you do not have a login, please register your household first - click or tap "Register".</li>
+                            <li>If you already have a login, please use the login tab to access your household - click or tap "Login".</li>
+                        </ul>
                     </p>
                 </div>
                 
-                <div class="auth-tabs">
-                    <button type="button" class="auth-tab-button active" data-tab="login">Login</button>
-                    <button type="button" class="auth-tab-button" data-tab="register">Register</button>
-                </div>
+                <div class="auth-content-wrapper">
+                    <div class="auth-tabs">
+                        <button type="button" class="auth-tab-button active" data-tab="login">Login</button>
+                        <button type="button" class="auth-tab-button" data-tab="register">Register</button>
+                    </div>
                 
                 <!-- Login Tab -->
                 <div id="login-tab" class="auth-tab-content active">
@@ -333,11 +427,20 @@ class ParishPortal {
                             </div>
                         </div>
                         <div class="form-group">
+                            <label class="terms-acceptance">
+                                <input type="checkbox" id="terms_accepted" name="terms_accepted" required>
+                                <span class="terms-text">
+                                    I agree to the <a href="<?php echo esc_url(plugin_dir_url(dirname(__DIR__)) . 'legal/terms-conditions.html'); ?>" target="_blank" rel="noopener">Terms & Conditions</a><span class="and-separator">and</span><a href="<?php echo esc_url(plugin_dir_url(dirname(__DIR__)) . 'legal/privacy-policy.html'); ?>" target="_blank" rel="noopener">Privacy Policy</a>
+                                </span>
+                            </label>
+                        </div>
+                        <div class="form-group">
                             <button type="submit" class="button button-primary full-width">Register Household</button>
                         </div>
                         <div id="registration-message"></div>
                     </form>
                 </div>
+                </div> <!-- Close auth-content-wrapper -->
             </div>
 
             <!-- Household Management (shown when authenticated) -->
@@ -385,6 +488,14 @@ class ParishPortal {
                                 <label for="household_postal_code">Postal Code</label>
                                 <input type="text" id="household_postal_code" name="postal_code">
                             </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="terms-acceptance">
+                                <input type="checkbox" id="household_terms_accepted" name="terms_accepted" required>
+                                <span class="terms-text">
+                                    I agree to the <a href="<?php echo esc_url(plugin_dir_url(dirname(__DIR__)) . 'legal/terms-conditions.html'); ?>" target="_blank" rel="noopener">Terms & Conditions</a><span class="and-separator">and</span><a href="<?php echo esc_url(plugin_dir_url(dirname(__DIR__)) . 'legal/privacy-policy.html'); ?>" target="_blank" rel="noopener">Privacy Policy</a>
+                                </span>
+                            </label>
                         </div>
                         <div class="form-group">
                             <button type="submit" class="button button-primary">Update Household</button>
@@ -608,7 +719,7 @@ class ParishPortal {
             'parish-portal-utils',
             $plugin_url . 'assets/js/parish-portal-utils.js',
             ['jquery'],
-            $version,
+            $version . '-' . time(),
             true
         );
         
@@ -616,7 +727,7 @@ class ParishPortal {
             'parish-portal-api',
             $plugin_url . 'assets/js/parish-portal-api.js',
             ['jquery', 'parish-portal-utils'],
-            $version,
+            $version . '-' . time(),
             true
         );
         
@@ -624,7 +735,7 @@ class ParishPortal {
             'parish-portal-auth',
             $plugin_url . 'assets/js/parish-portal-auth.js',
             ['jquery', 'parish-portal-utils', 'parish-portal-api'],
-            $version,
+            $version . '-' . time(),
             true
         );
         
@@ -632,7 +743,7 @@ class ParishPortal {
             'parish-portal-household',
             $plugin_url . 'assets/js/parish-portal-household.js',
             ['jquery', 'parish-portal-utils', 'parish-portal-api'],
-            $version,
+            $version . '-' . time(),
             true
         );
         
@@ -640,7 +751,7 @@ class ParishPortal {
             'parish-portal-members',
             $plugin_url . 'assets/js/parish-portal-members.js',
             ['jquery', 'parish-portal-utils', 'parish-portal-api'],
-            $version,
+            $version . '-' . time(),
             true
         );
         
@@ -648,7 +759,7 @@ class ParishPortal {
             'parish-portal-main',
             $plugin_url . 'assets/js/parish-portal-main.js',
             ['jquery', 'parish-portal-utils', 'parish-portal-api', 'parish-portal-auth', 'parish-portal-household', 'parish-portal-members'],
-            $version,
+            $version . '-' . time(),
             true
         );
 

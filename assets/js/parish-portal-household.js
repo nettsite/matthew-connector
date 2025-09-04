@@ -32,9 +32,16 @@
     function clearHouseholdData() {
         currentHouseholdData = null;
         
-        // Clear forms
-        $('#household-form')[0].reset();
-        $('#member-list').empty();
+        // Clear forms safely
+        const householdForm = $('#household-info-form');
+        if (householdForm.length > 0) {
+            householdForm[0].reset();
+        }
+        
+        const memberList = $('#members-list');
+        if (memberList.length > 0) {
+            memberList.empty();
+        }
     }
 
     /**
@@ -121,6 +128,9 @@
         $('#household_phone_edit').val(householdData.phone || householdData.primary_phone || '');
         $('#household_email_edit').val(householdData.email || householdData.primary_email || '');
         
+        // Set terms acceptance checkbox - checked if terms_accepted has a value (timestamp), unchecked if null/empty
+        $('#household_terms_accepted').prop('checked', !!householdData.terms_accepted);
+        
         // Update the household title
         $('#household-title').text(householdData.name || householdData.household_name || 'Your Household');
     }
@@ -141,6 +151,13 @@
             const $submitButton = $form.find('button[type="submit"], input[type="submit"]');
             const $message = $('#household-info-message');
             
+            // Validate terms acceptance
+            const termsAccepted = $('#household_terms_accepted').prop('checked');
+            if (!termsAccepted) {
+                window.ParishPortal.Utils.displayError($message, 'You must agree to the Terms & Conditions and Privacy Policy');
+                return;
+            }
+            
             window.ParishPortal.Utils.setButtonLoading($submitButton, 'Updating...');
             window.ParishPortal.Utils.clearMessage($message);
             
@@ -151,7 +168,8 @@
                 province: $('#household_province').val(),
                 postal_code: $('#household_postal_code').val(),
                 phone: $('#household_phone_edit').val(),
-                email: $('#household_email_edit').val()
+                email: $('#household_email_edit').val(),
+                terms_accepted: 1
             };
             
             console.log('Updating household with:', formData);

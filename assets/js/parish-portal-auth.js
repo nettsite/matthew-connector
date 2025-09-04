@@ -103,21 +103,32 @@
                 return;
             }
             
+            // Validate terms acceptance
+            const termsAccepted = $('#terms_accepted').prop('checked');
+            if (!termsAccepted) {
+                window.ParishPortal.Utils.displayError($message, 'You must agree to the Terms & Conditions and Privacy Policy');
+                return;
+            }
+            
             // Show loading state
             window.ParishPortal.Utils.setButtonLoading($submitButton, 'Registering...');
             window.ParishPortal.Utils.clearMessage($message);
             
             try {
-                // Prepare form data according to API spec
+                // Prepare form data according to API spec - FIXED VERSION
                 const formData = {
                     household_name: $('#household_name').val(),
                     email: $('#primary_email').val(),
                     password: password,
-                    phone: $('#primary_phone').val()
+                    phone: $('#primary_phone').val(),
+                    terms_accepted: 1
                 };
-                
-                console.log('Submitting registration for:', formData.email);
-                console.log('Full form data being sent:', formData);
+                console.log('DEBUG: Submitting registration for:', formData.email);
+                console.log('DEBUG: Full form data being sent:', formData);
+                console.log('DEBUG: FormData keys:', Object.keys(formData));
+                console.log('DEBUG: terms_accepted field specifically:', formData.terms_accepted);
+                console.log('Terms checkbox checked:', termsAccepted);
+                console.log('Terms checkbox element:', $('#terms_accepted'));
                 
                 const response = await window.ParishPortal.API.register(formData);
                 
@@ -240,12 +251,23 @@
             // Show auth forms
             showAuthForms();
             
-            // Clear any messages
+            // Clear any messages from all possible message containers
             $('.message').removeClass('error success').empty();
+            $('#login-message').removeClass('error success').empty();
+            $('#registration-message').removeClass('error success').empty();
+            $('#household-info-message').removeClass('error success').empty();
+            $('#member-form-message').removeClass('error success').empty();
             
-            // Reset forms
-            $('#parish-registration-form')[0].reset();
-            $('#parish-login-form')[0].reset();
+            // Reset forms safely
+            const regForm = $('#parish-registration-form');
+            if (regForm.length > 0) {
+                regForm[0].reset();
+            }
+            
+            const loginForm = $('#parish-login-form');
+            if (loginForm.length > 0) {
+                loginForm[0].reset();
+            }
         });
     }
 
