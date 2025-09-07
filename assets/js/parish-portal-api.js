@@ -232,6 +232,8 @@
         register,
         login,
         logout,
+        forgotPassword,
+        resetPassword,
         getHousehold,
         updateHousehold,
         getMembers,
@@ -368,6 +370,28 @@
             // Continue with local logout even if API fails
         }
         localStorage.removeItem('matthew_household_token');
+    }
+
+    /**
+     * Request password reset
+     */
+    async function forgotPassword(emailData) {
+        const apiConfig = await getMatthewApiConfig();
+        return makeApiRequest('/api/household/forgot-password', {
+            method: 'POST',
+            data: emailData
+        });
+    }
+
+    /**
+     * Reset password with token
+     */
+    async function resetPassword(resetData) {
+        const apiConfig = await getMatthewApiConfig();
+        return makeApiRequest('/api/household/reset-password', {
+            method: 'POST',
+            data: resetData
+        });
     }
 
     /**

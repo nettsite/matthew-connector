@@ -193,6 +193,7 @@ class ParishPortal {
             display: flex;
             align-items: center;
             justify-content: center;
+            pointer-events: auto;
         }
         
         .matthew-modal-content {
@@ -203,6 +204,8 @@ class ParishPortal {
             max-height: 90vh;
             overflow-y: auto;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            pointer-events: auto;
+            position: relative;
         }
         
         .matthew-modal-header {
@@ -691,6 +694,58 @@ class ParishPortal {
                             <div id="member-form-message"></div>
                                 </form>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Forgot Password Modal -->
+            <div id="forgot-password-modal" class="matthew-modal" style="display: none;">
+                <div class="matthew-modal-content">
+                    <div class="matthew-modal-header">
+                        <h4>Reset Password</h4>
+                        <span class="matthew-modal-close">&times;</span>
+                    </div>
+                    <div class="matthew-modal-body">
+                        <div id="forgot-password-form-section">
+                            <p>Enter your email address and we'll send you a link to reset your password. The link will expire in 60 minutes.</p>
+                            <form id="forgot-password-form" class="parish-form">
+                                <div class="form-group">
+                                    <label for="forgot_email">Email Address</label>
+                                    <input type="email" id="forgot_email" name="email" required autocomplete="username">
+                                </div>
+                                <div class="form-group">
+                                    <button type="submit" class="button button-primary full-width">Send Reset Link</button>
+                                </div>
+                                <div id="forgot-password-message"></div>
+                            </form>
+                        </div>
+
+                        <div id="reset-password-form-section" style="display: none;">
+                            <p>Enter your new password below.</p>
+                            <form id="reset-password-form" class="parish-form">
+                                <input type="hidden" id="reset_token" name="token">
+                                <input type="hidden" id="reset_email" name="email">
+                                <div class="form-group">
+                                    <label for="new_password">New Password</label>
+                                    <div class="password-input-container">
+                                        <input type="password" id="new_password" name="password" required minlength="8" autocomplete="new-password">
+                                        <span class="password-toggle" data-target="new_password">👁️</span>
+                                    </div>
+                                    <small class="help-text">At least 8 characters</small>
+                                </div>
+                                <div class="form-group">
+                                    <label for="confirm_new_password">Confirm New Password</label>
+                                    <div class="password-input-container">
+                                        <input type="password" id="confirm_new_password" name="password_confirmation" required autocomplete="new-password">
+                                        <span class="password-toggle" data-target="confirm_new_password">👁️</span>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <button type="submit" class="button button-primary full-width">Reset Password</button>
+                                </div>
+                                <div id="reset-password-message"></div>
+                            </form>
                         </div>
                     </div>
                 </div>
