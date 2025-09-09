@@ -362,7 +362,7 @@
                 console.log('Reset password response:', response);
                 
                 if (response.success) {
-                    window.ParishPortal.Utils.displaySuccess($message, response.message || 'Password reset successfully. You can now login with your new password.');
+                    window.ParishPortal.Utils.displaySuccess($message, 'Password reset successfully. Logging you in...');
                     
                     // Clear URL parameters to prevent reopening modal on refresh
                     const url = new URL(window.location);
@@ -370,12 +370,56 @@
                     url.searchParams.delete('email');
                     window.history.replaceState({}, document.title, url);
                     
-                    // Close modal after a brief delay
-                    setTimeout(() => {
-                        $('#forgot-password-modal').hide();
-                        // Focus on login form
-                        $('#login_email').focus();
-                    }, 2000);
+                    // Automatically log in with new password
+                    try {
+                        const loginResponse = await window.ParishPortal.API.login({
+                            email: resetData.email,
+                            password: resetData.password
+                        });
+                        
+                        if (loginResponse.success && loginResponse.data && loginResponse.data.token) {
+                            // Store the household token
+                            window.ParishPortal.API.setToken(loginResponse.data.token);
+                            
+                            // Store household data
+                            if (window.ParishPortal.Household) {
+                                window.ParishPortal.Household.setCurrentHouseholdData(loginResponse.data.household);
+                            }
+                            
+                            // Show success message
+                            window.ParishPortal.Utils.displaySuccess($message, 'Password reset and login successful!');
+                            
+                            // Close modal and show household management
+                            setTimeout(() => {
+                                $('#forgot-password-modal').hide();
+                                if (window.ParishPortal.Auth) {
+                                    window.ParishPortal.Auth.showHouseholdManagement();
+                                }
+                                
+                                // Load household data
+                                if (window.ParishPortal.Household) {
+                                    window.ParishPortal.Household.loadHouseholdData();
+                                }
+                            }, 1500);
+                        } else {
+                            // Login failed, show manual login message
+                            window.ParishPortal.Utils.displaySuccess($message, 'Password reset successfully. Please log in with your new password.');
+                            setTimeout(() => {
+                                $('#forgot-password-modal').hide();
+                                // Focus on login form and pre-fill email
+                                $('#login_email').val(resetData.email).focus();
+                            }, 2000);
+                        }
+                    } catch (loginError) {
+                        console.error('Auto-login after password reset failed:', loginError);
+                        // Show success message but ask user to login manually
+                        window.ParishPortal.Utils.displaySuccess($message, 'Password reset successfully. Please log in with your new password.');
+                        setTimeout(() => {
+                            $('#forgot-password-modal').hide();
+                            // Focus on login form and pre-fill email
+                            $('#login_email').val(resetData.email).focus();
+                        }, 2000);
+                    }
                 } else {
                     throw new Error(response.message || 'Failed to reset password');
                 }
