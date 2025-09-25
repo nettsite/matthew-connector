@@ -116,11 +116,12 @@
         $membersList.empty();
         
         if (!members || members.length === 0) {
-            console.log('No members to display, showing empty message');
+            console.log('No members to display, showing empty message and opening form');
             $membersList.html('<div style="background: #e3f2fd; border: 2px solid #2196f3; padding: 20px; margin-bottom: 20px; border-radius: 6px; text-align: center;"><p style="margin: 0; font-size: 16px; color: #1976d2; font-weight: 500;">Please add the members of your household, including yourself</p></div>');
+            resetMemberForm();
+            showMemberForm();
             return;
         }
-        
         console.log('Rendering', members.length, 'members');
         members.forEach((member, index) => {
             console.log('Rendering member', index, ':', member);
@@ -133,11 +134,6 @@
                 <div class="member-card" data-member-id="${member.id}">
                     <div class="member-info">
                         <h4>${member.first_name} ${member.last_name}</h4>
-                        <p>
-                            ${member.email ? 'Email: ' + member.email : ''}
-                            ${member.phone ? (member.email ? ' | ' : '') + 'Phone: ' + member.phone : ''}
-                        </p>
-                        ${sacraments.length > 0 ? '<p>Sacraments: ' + sacraments.join(', ') + '</p>' : ''}
                     </div>
                     <div class="member-actions">
                         <button type="button" class="button edit-member-btn" data-member-id="${member.id}">Edit</button>

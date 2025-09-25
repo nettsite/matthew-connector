@@ -512,11 +512,14 @@ class ParishPortal {
                 <div id="members-tab" class="tab-content active">
                     <div class="members-header">
                         <h3>Household Members</h3>
-                        <button type="button" id="add-member-btn" class="button button-primary">Add Member</button>
                     </div>
 
                     <div id="members-list" class="members-list">
                         <!-- Members will be loaded dynamically -->
+                    </div>
+
+                    <div class="members-actions" style="margin-top: 20px;">
+                        <button type="button" id="add-member-btn" class="button button-primary">Add Member</button>
                     </div>
 
                     <!-- Add/Edit Member Modal -->
