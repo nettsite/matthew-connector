@@ -14,6 +14,44 @@
     let currentEditingMemberId = null;
 
     /**
+     * Format dates for HTML date inputs (yyyy-MM-dd)
+     * Handles timezone issues by using local date interpretation
+     */
+    function formatDate(dateString) {
+        if (!dateString) return '';
+
+        // If it's already in YYYY-MM-DD format, return as-is
+        if (typeof dateString === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
+            return dateString;
+        }
+
+        // Try parsing different formats
+        try {
+            let date;
+            if (typeof dateString === 'string' && dateString.includes('T')) {
+                // ISO datetime format
+                date = new Date(dateString);
+            } else if (typeof dateString === 'string') {
+                // Just a date string, add time to avoid timezone issues
+                date = new Date(dateString + 'T00:00:00');
+            } else {
+                // Fallback for other types
+                date = new Date(dateString);
+            }
+
+            if (isNaN(date.getTime())) {
+                return '';
+            }
+
+            return date.getFullYear() + '-' +
+                   String(date.getMonth() + 1).padStart(2, '0') + '-' +
+                   String(date.getDate()).padStart(2, '0');
+        } catch (error) {
+            return '';
+        }
+    }
+
+    /**
      * Load household members from API
      */
     async function loadHouseholdMembers() {
@@ -79,7 +117,7 @@
         
         if (!members || members.length === 0) {
             console.log('No members to display, showing empty message');
-            $membersList.html('<p>No members added yet. Click "Add Member" to get started.</p>');
+            $membersList.html('<div style="background: #e3f2fd; border: 2px solid #2196f3; padding: 20px; margin-bottom: 20px; border-radius: 6px; text-align: center;"><p style="margin: 0; font-size: 16px; color: #1976d2; font-weight: 500;">Please add the members of your household, including yourself</p></div>');
             return;
         }
         
@@ -138,17 +176,9 @@
             
             $('#member-form-title').text('Edit Member');
             $('#member_id').val(member.id);
-            
-            // Format dates for HTML date inputs (yyyy-MM-dd)
-            const formatDate = (dateString) => {
-                if (!dateString) return '';
-                const date = new Date(dateString);
-                return date.toISOString().split('T')[0];
-            };
-            
+
             $('#member_first_name').val(member.first_name);
             $('#member_last_name').val(member.last_name);
-            $('#member_id_number').val(member.id_number || '');
             $('#member_date_of_birth').val(formatDate(member.date_of_birth));
             $('#member_email').val(member.email || '');
             $('#member_phone').val(member.phone || '');
@@ -205,7 +235,6 @@
         $('#member-form-modal').hide();
         $('#member-form')[0].reset();
         $('#member_id').val('');
-        $('#member_id_number').val('');
         $('#member_date_of_birth').val('');
         $('#member_occupation').val('');
         $('#member_skills').val('');
@@ -268,17 +297,9 @@
     function populateMemberFormForEdit(member) {
         isEditingMember = true;
         currentEditingMemberId = member.id;
-        
-        // Format dates for HTML date inputs (yyyy-MM-dd)
-        const formatDate = (dateString) => {
-            if (!dateString) return '';
-            const date = new Date(dateString);
-            return date.toISOString().split('T')[0];
-        };
-        
+
         $('#member_first_name').val(member.first_name || '');
         $('#member_last_name').val(member.last_name || '');
-        $('#member_id_number').val(member.id_number || '');
         $('#member_date_of_birth').val(formatDate(member.date_of_birth));
         $('#member_email').val(member.email || '');
         $('#member_phone').val(member.phone || '');
@@ -586,7 +607,6 @@
                 const formData = {
                     first_name: $('#member_first_name').val(),
                     last_name: $('#member_last_name').val(),
-                    id_number: $('#member_id_number').val(),
                     date_of_birth: $('#member_date_of_birth').val(),
                     email: $('#member_email').val(),
                     phone: $('#member_phone').val(),

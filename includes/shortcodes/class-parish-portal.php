@@ -17,7 +17,7 @@ class ParishPortal {
 
     public static function init() {
         // Register shortcode
-        add_shortcode('parish_portal', [self::class, 'render']);
+        add_shortcode('matthew-connector', [self::class, 'render']);
         
         // Register scripts
         add_action('wp_enqueue_scripts', [self::class, 'enqueue_assets']);
@@ -456,17 +456,18 @@ class ParishPortal {
                 </div>
 
                 <div class="management-tabs">
-                    <button type="button" class="tab-button active" data-tab="household-info">Household Info</button>
-                    <button type="button" class="tab-button" data-tab="members">Members</button>
+                    <button type="button" class="tab-button active" data-tab="members">Members</button>
+                    <button type="button" class="tab-button" data-tab="household-info">Household Info</button>
                 </div>
 
                 <!-- Household Information Tab -->
-                <div id="household-info-tab" class="tab-content active">
+                <div id="household-info-tab" class="tab-content">
                     <form id="household-info-form" class="parish-form">
                         <h3>Household Information</h3>
+                        <p style="margin: 0 0 15px 0; font-size: 14px; color: #666;">Only fields marked <span style="color: red;">*</span> are compulsory</p>
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="household_name_edit">Household Name</label>
+                                <label for="household_name_edit">Household Name <span style="color: red;">*</span></label>
                                 <input type="text" id="household_name_edit" name="name" required>
                             </div>
                             <div class="form-group">
@@ -474,7 +475,7 @@ class ParishPortal {
                                 <input type="tel" id="household_phone_edit" name="phone">
                             </div>
                             <div class="form-group">
-                                <label for="household_email_edit">Email</label>
+                                <label for="household_email_edit">Email <span style="color: red;">*</span></label>
                                 <input type="email" id="household_email_edit" name="email" required>
                             </div>
                         </div>
@@ -496,7 +497,7 @@ class ParishPortal {
                             <label class="terms-acceptance">
                                 <input type="checkbox" id="household_terms_accepted" name="terms_accepted" required>
                                 <span class="terms-text">
-                                    I agree to the <a href="<?php echo esc_url(plugin_dir_url(dirname(__DIR__)) . 'legal/terms-conditions.php'); ?>" target="_blank" rel="noopener">Terms & Conditions</a><span class="and-separator">and</span><a href="<?php echo esc_url(plugin_dir_url(dirname(__DIR__)) . 'legal/privacy-policy.php'); ?>" target="_blank" rel="noopener">Privacy Policy</a>
+                                    I agree to the <a href="<?php echo esc_url(plugin_dir_url(dirname(__DIR__)) . 'legal/terms-conditions.php'); ?>" target="_blank" rel="noopener">Terms & Conditions</a><span class="and-separator">and</span><a href="<?php echo esc_url(plugin_dir_url(dirname(__DIR__)) . 'legal/privacy-policy.php'); ?>" target="_blank" rel="noopener">Privacy Policy</a> <span style="color: red;">*</span>
                                 </span>
                             </label>
                         </div>
@@ -508,12 +509,12 @@ class ParishPortal {
                 </div>
 
                 <!-- Members Tab -->
-                <div id="members-tab" class="tab-content">
+                <div id="members-tab" class="tab-content active">
                     <div class="members-header">
                         <h3>Household Members</h3>
                         <button type="button" id="add-member-btn" class="button button-primary">Add Member</button>
                     </div>
-                    
+
                     <div id="members-list" class="members-list">
                         <!-- Members will be loaded dynamically -->
                     </div>
@@ -526,25 +527,22 @@ class ParishPortal {
                                 <span class="matthew-modal-close">&times;</span>
                             </div>
                             <div class="matthew-modal-body">
+                                <p style="margin: 0 0 15px 0; font-size: 14px; color: #666;">Only fields marked <span style="color: red;">*</span> are compulsory</p>
                                 <form id="member-form" class="parish-form">
                                     <input type="hidden" id="member_id" name="member_id">
                             
                             <div class="form-row">
                                 <div class="form-group">
-                                    <label for="member_first_name">First Name</label>
+                                    <label for="member_first_name">First Name <span style="color: red;">*</span></label>
                                     <input type="text" id="member_first_name" name="first_name" required>
                                 </div>
                                 <div class="form-group">
-                                    <label for="member_last_name">Last Name</label>
+                                    <label for="member_last_name">Last Name <span style="color: red;">*</span></label>
                                     <input type="text" id="member_last_name" name="last_name" required>
                                 </div>
                             </div>
 
                             <div class="form-row">
-                                <div class="form-group">
-                                    <label for="member_id_number">Identity Number</label>
-                                    <input type="text" id="member_id_number" name="id_number">
-                                </div>
                                 <div class="form-group">
                                     <label for="member_date_of_birth">Date of Birth</label>
                                     <input type="date" id="member_date_of_birth" name="date_of_birth">
